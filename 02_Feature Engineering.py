@@ -4,7 +4,7 @@
 # COMMAND ----------
 
 # DBTITLE 1,Install Required Python Libraries
-# MAGIC %pip install dython
+# MAGIC %pip install dython==0.7.1
 
 # COMMAND ----------
 
