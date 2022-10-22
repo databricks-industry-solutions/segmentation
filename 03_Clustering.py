@@ -1,4 +1,9 @@
 # Databricks notebook source
+# MAGIC %md 
+# MAGIC You may find this series of notebooks at https://github.com/databricks-industry-solutions/segmentation.git. For more information about this solution accelerator, visit https://www.databricks.com/solutions/accelerators/customer-segmentation.
+
+# COMMAND ----------
+
 # MAGIC %md The purpose of this notebook is to identify potential segments for our households using a clustering technique. 
 
 # COMMAND ----------
