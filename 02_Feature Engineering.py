@@ -595,16 +595,8 @@ spark.createDataFrame(trans_features_pd).createOrReplaceTempView('trans_features
 
 # DBTITLE 1,Install Required R Packages
 # MAGIC %r
-# MAGIC 
 # MAGIC require(devtools)
-# MAGIC install_version("dplyr", version="1.0.3")
 # MAGIC install.packages( c( "pbkrtest", "FactoMineR", "missMDA", "factoextra") )
-
-# COMMAND ----------
-
-# MAGIC %r
-# MAGIC install.packages('rlang')
-# MAGIC quit
 
 # COMMAND ----------
 
