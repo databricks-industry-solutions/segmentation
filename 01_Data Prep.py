@@ -76,7 +76,7 @@ transactions_schema = StructType([
     .save('/tmp/completejourney/completejourney/silver/transactions')
   )
 
-# create table object to make delta lake queriable
+# create table object to make delta lake queryable
 _ = spark.sql('''
     CREATE TABLE transactions 
     USING DELTA 
@@ -120,7 +120,7 @@ products_schema = StructType([
     .save('/tmp/completejourney/silver/products')
   )
 
-# create table object to make delta lake queriable
+# create table object to make delta lake queryable
 _ = spark.sql('''
     CREATE TABLE products
     USING DELTA 
@@ -161,7 +161,7 @@ households = (
       )
   )
 
-# make queriable for later work
+# make queryable for later work
 households.createOrReplaceTempView('households')
 
 # income bracket sort order
@@ -186,7 +186,7 @@ income_bracket_lookup = (
     )
   )
 
-# make queriable for later work
+# make queryable for later work
 income_bracket_lookup.createOrReplaceTempView('income_bracket_lookup')
 
 # household composition sort order
@@ -205,7 +205,7 @@ composition_lookup = (
     )
   )
 
-# make queriable for later work
+# make queryable for later work
 composition_lookup.createOrReplaceTempView('composition_lookup')
 
 # persist data with sort order data and a priori segments
@@ -236,7 +236,7 @@ composition_lookup.createOrReplaceTempView('composition_lookup')
     .save('/tmp/completejourney/silver/households')
   )
 
-# create table object to make delta lake queriable
+# create table object to make delta lake queryable
 _ = spark.sql('''
     CREATE TABLE households 
     USING DELTA 
@@ -276,7 +276,7 @@ coupons_schema = StructType([
     .save('/tmp/completejourney/silver/coupons')
   )
 
-# create table object to make delta lake queriable
+# create table object to make delta lake queryable
 _ = spark.sql('''
     CREATE TABLE coupons
     USING DELTA 
@@ -317,7 +317,7 @@ campaigns_schema = StructType([
     .save('/tmp/completejourney/silver/campaigns')
   )
 
-# create table object to make delta lake queriable
+# create table object to make delta lake queryable
 _ = spark.sql('''
     CREATE TABLE campaigns
     USING DELTA 
@@ -358,7 +358,7 @@ coupon_redemptions_schema = StructType([
     .save('/tmp/completejourney/silver/coupon_redemptions')
   )
 
-# create table object to make delta lake queriable
+# create table object to make delta lake queryable
 _ = spark.sql('''
     CREATE TABLE coupon_redemptions
     USING DELTA 
@@ -398,7 +398,7 @@ campaigns_households_schema = StructType([
     .save('/tmp/completejourney/silver/campaigns_households')
   )
 
-# create table object to make delta lake queriable
+# create table object to make delta lake queryable
 _ = spark.sql('''
     CREATE TABLE campaigns_households
     USING DELTA 
@@ -440,7 +440,7 @@ causal_data_schema = StructType([
     .save('/tmp/completejourney/silver/causal_data')
   )
 
-# create table object to make delta lake queriable
+# create table object to make delta lake queryable
 _ = spark.sql('''
     CREATE TABLE causal_data
     USING DELTA 

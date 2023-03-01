@@ -187,7 +187,7 @@ import matplotlib.pyplot as plt
 # COMMAND ----------
 
 # DBTITLE 1,Retrieve Features
-# retreive as Spark dataframe
+# retrieve as Spark dataframe
 household_features = (
   spark
     .table('household_features')
@@ -355,7 +355,7 @@ for k in range(0,feature_count):
 # COMMAND ----------
 
 # DBTITLE 1,Read Features to Pandas
-# retreive as Spark dataframe
+# retrieve as Spark dataframe
 household_features = (
   spark
     .table('household_features')
@@ -466,7 +466,7 @@ for k in range(0, c_feature_count):
 # COMMAND ----------
 
 # DBTITLE 1,Apply Quantile Transformation to Continuous Features
-# access continous features
+# access continuous features
 c_features_pd = features_pd[c_feature_names]
 
 # apply quantile transform
@@ -560,7 +560,7 @@ _ = dython.nominal.associations(
 
 # COMMAND ----------
 
-# MAGIC %md As with our continuous features, we have some problematic relationships between our binary variables that we need to address.  And what about the relationship between the continous and categorical features? 
+# MAGIC %md As with our continuous features, we have some problematic relationships between our binary variables that we need to address.  And what about the relationship between the continuous and categorical features? 
 # MAGIC 
 # MAGIC We know from how they were derived that a binary feature with a value of 0 will have a NULL/NaN value for its related continuous features and that any real value for a continuous feature will translate into a value of 1 for the associated binary feature. We don't need to calculate a metric to know we have a relationship between these features (though the calculation of a [Correlation Ratio](https://towardsdatascience.com/the-search-for-categorical-correlation-a1cf7f1888c9) might help us if we had any doubts).  So what are we going to do to address these and the previously mentioned relationships in our feature data?
 # MAGIC 
