@@ -41,6 +41,13 @@ from pyspark.sql.functions import min, max
 
 # COMMAND ----------
 
+# DBTITLE 1,Initialize silver table paths
+# MAGIC %sh
+# MAGIC rm -r /dbfs/tmp/completejourney/silver/ 
+# MAGIC mkdir -p /dbfs/tmp/completejourney/silver/
+
+# COMMAND ----------
+
 # DBTITLE 1,Transactions
 # delete the old table if needed
 _ = spark.sql('DROP TABLE IF EXISTS transactions')
@@ -73,14 +80,14 @@ transactions_schema = StructType([
     .format('delta')
     .mode('overwrite')
     .option('overwriteSchema', 'true')
-    .save('/tmp/completejourney/completejourney/silver/transactions')
+    .save('/tmp/completejourney/silver/transactions')
   )
 
 # create table object to make delta lake queryable
 _ = spark.sql('''
     CREATE TABLE transactions 
     USING DELTA 
-    LOCATION '/tmp/completejourney/completejourney/silver/transactions'
+    LOCATION '/tmp/completejourney/silver/transactions'
     ''')
 
 # show data
