@@ -36,7 +36,7 @@ from pyspark.sql.functions import min, max
 # MAGIC %sql
 # MAGIC 
 # MAGIC DROP DATABASE IF EXISTS journey CASCADE;
-# MAGIC CREATE DATABASE journey;
+# MAGIC CREATE DATABASE journey; -- A managed database is used here for demo purposes and the data is stored in DBFS. Please set an LOCATION here pointing to your own cloud storage for an actual implementation. 
 # MAGIC USE journey;
 
 # COMMAND ----------
@@ -73,15 +73,8 @@ transactions_schema = StructType([
     .format('delta')
     .mode('overwrite')
     .option('overwriteSchema', 'true')
-    .save('/tmp/completejourney/completejourney/silver/transactions')
+    .saveAsTable('transactions')
   )
-
-# create table object to make delta lake queriable
-_ = spark.sql('''
-    CREATE TABLE transactions 
-    USING DELTA 
-    LOCATION '/tmp/completejourney/completejourney/silver/transactions'
-    ''')
 
 # show data
 display(
@@ -117,15 +110,8 @@ products_schema = StructType([
     .format('delta')
     .mode('overwrite')
     .option('overwriteSchema', 'true')
-    .save('/tmp/completejourney/silver/products')
+    .saveAsTable('products')
   )
-
-# create table object to make delta lake queriable
-_ = spark.sql('''
-    CREATE TABLE products
-    USING DELTA 
-    LOCATION '/tmp/completejourney/silver/products'
-    ''')
 
 # show data
 display(
@@ -233,15 +219,8 @@ composition_lookup.createOrReplaceTempView('composition_lookup')
     .format('delta')
     .mode('overwrite')
     .option('overwriteSchema', 'true')
-    .save('/tmp/completejourney/silver/households')
+    .saveAsTable('households')
   )
-
-# create table object to make delta lake queriable
-_ = spark.sql('''
-    CREATE TABLE households 
-    USING DELTA 
-    LOCATION '/tmp/completejourney/silver/households'
-    ''')
 
 # show data
 display(
@@ -273,15 +252,8 @@ coupons_schema = StructType([
     .format('delta')
     .mode('overwrite')
     .option('overwriteSchema', 'true')
-    .save('/tmp/completejourney/silver/coupons')
+    .saveAsTable('coupons')
   )
-
-# create table object to make delta lake queriable
-_ = spark.sql('''
-    CREATE TABLE coupons
-    USING DELTA 
-    LOCATION '/tmp/completejourney/silver/coupons'
-    ''')
 
 # show data
 display(
@@ -314,15 +286,8 @@ campaigns_schema = StructType([
     .format('delta')
     .mode('overwrite')
     .option('overwriteSchema', 'true')
-    .save('/tmp/completejourney/silver/campaigns')
+    .saveAsTable('campaigns')
   )
-
-# create table object to make delta lake queriable
-_ = spark.sql('''
-    CREATE TABLE campaigns
-    USING DELTA 
-    LOCATION '/tmp/completejourney/silver/campaigns'
-    ''')
 
 # show data
 display(
@@ -355,15 +320,8 @@ coupon_redemptions_schema = StructType([
     .format('delta')
     .mode('overwrite')
     .option('overwriteSchema', 'true')
-    .save('/tmp/completejourney/silver/coupon_redemptions')
+    .saveAsTable('coupon_redemptions')
   )
-
-# create table object to make delta lake queriable
-_ = spark.sql('''
-    CREATE TABLE coupon_redemptions
-    USING DELTA 
-    LOCATION '/tmp/completejourney/silver/coupon_redemptions'
-    ''')
 
 # show data
 display(
@@ -395,15 +353,8 @@ campaigns_households_schema = StructType([
     .format('delta')
     .mode('overwrite')
     .option('overwriteSchema', 'true')
-    .save('/tmp/completejourney/silver/campaigns_households')
+    .saveAsTable('campaigns_households')
   )
-
-# create table object to make delta lake queriable
-_ = spark.sql('''
-    CREATE TABLE campaigns_households
-    USING DELTA 
-    LOCATION '/tmp/completejourney/silver/campaigns_households'
-    ''')
 
 # show data
 display(
@@ -437,15 +388,8 @@ causal_data_schema = StructType([
     .format('delta')
     .mode('overwrite')
     .option('overwriteSchema', 'true')
-    .save('/tmp/completejourney/silver/causal_data')
+    .saveAsTable('causal_data')
   )
-
-# create table object to make delta lake queriable
-_ = spark.sql('''
-    CREATE TABLE causal_data
-    USING DELTA 
-    LOCATION '/tmp/completejourney/silver/causal_data'
-    ''')
 
 # show data
 display(
