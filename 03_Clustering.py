@@ -217,7 +217,7 @@ iterations = sc.range(
               numSlices= sc.defaultParallelism * 4
               ) # distribute work into fairly even number of partitions that allow us to track progress
                         
-# retreive best of distributed iterations
+# retrieve best of distributed iterations
 bestofk_results = (
   iterations
     .mapPartitions(find_bestofk_for_partition)

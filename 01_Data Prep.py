@@ -76,6 +76,7 @@ transactions_schema = StructType([
     .saveAsTable('transactions')
   )
 
+
 # show data
 display(
   spark.table('transactions')
@@ -113,6 +114,7 @@ products_schema = StructType([
     .saveAsTable('products')
   )
 
+
 # show data
 display(
   spark.table('products')
@@ -147,7 +149,7 @@ households = (
       )
   )
 
-# make queriable for later work
+# make queryable for later work
 households.createOrReplaceTempView('households')
 
 # income bracket sort order
@@ -172,7 +174,7 @@ income_bracket_lookup = (
     )
   )
 
-# make queriable for later work
+# make queryable for later work
 income_bracket_lookup.createOrReplaceTempView('income_bracket_lookup')
 
 # household composition sort order
@@ -191,7 +193,7 @@ composition_lookup = (
     )
   )
 
-# make queriable for later work
+# make queryable for later work
 composition_lookup.createOrReplaceTempView('composition_lookup')
 
 # persist data with sort order data and a priori segments
@@ -221,6 +223,7 @@ composition_lookup.createOrReplaceTempView('composition_lookup')
     .option('overwriteSchema', 'true')
     .saveAsTable('households')
   )
+
 
 # show data
 display(
@@ -254,6 +257,7 @@ coupons_schema = StructType([
     .option('overwriteSchema', 'true')
     .saveAsTable('coupons')
   )
+
 
 # show data
 display(
@@ -289,6 +293,7 @@ campaigns_schema = StructType([
     .saveAsTable('campaigns')
   )
 
+
 # show data
 display(
   spark.table('campaigns')
@@ -323,6 +328,7 @@ coupon_redemptions_schema = StructType([
     .saveAsTable('coupon_redemptions')
   )
 
+
 # show data
 display(
   spark.table('coupon_redemptions')
@@ -355,6 +361,7 @@ campaigns_households_schema = StructType([
     .option('overwriteSchema', 'true')
     .saveAsTable('campaigns_households')
   )
+
 
 # show data
 display(
@@ -390,6 +397,7 @@ causal_data_schema = StructType([
     .option('overwriteSchema', 'true')
     .saveAsTable('causal_data')
   )
+
 
 # show data
 display(
