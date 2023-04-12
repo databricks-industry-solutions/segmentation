@@ -35,6 +35,12 @@ import seaborn as sns
 
 # COMMAND ----------
 
+# DBTITLE 1,Initialize the gold table paths
+dbutils.fs.rm("/tmp/completejourney/gold/", True)
+dbutils.fs.mkdirs("/tmp/completejourney/gold/")
+
+# COMMAND ----------
+
 # DBTITLE 1,Retrieve Transformed Features
 # retrieve household (transformed) features
 household_X_pd = spark.table('DELTA.`/tmp/completejourney/silver/features_finalized/`').toPandas()
