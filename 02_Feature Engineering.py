@@ -28,15 +28,15 @@ import matplotlib.pyplot as plt
 # COMMAND ----------
 
 # MAGIC %md ## Step 1: Derive Bases Features
-# MAGIC 
+# MAGIC
 # MAGIC With a stated goal of segmenting customer households based on their responsiveness to various promotional efforts, we start by calculating the number of purchase dates (*pdates\_*) and the volume of sales (*amount\_list_*) associated with each promotion item, alone and in combination with one another.  The promotional items considered are:
-# MAGIC 
+# MAGIC
 # MAGIC * Campaign targeted products (*campaign\_targeted_*)
 # MAGIC * Private label products (*private\_label_*)
 # MAGIC * InStore-discounted products (*instore\_discount_*)
 # MAGIC * Campaign (retailer-generated) coupon redemptions (*campaign\_coupon\_redemption_*)
 # MAGIC * Manufacturer-generated coupon redemptions (*manuf\_coupon\_redemption_*)
-# MAGIC 
+# MAGIC
 # MAGIC The resulting metrics are by no means exhaustive but provide a useful starting point for our analysis:
 
 # COMMAND ----------
@@ -44,9 +44,9 @@ import matplotlib.pyplot as plt
 # DBTITLE 1,Derive Relevant Metrics
 # MAGIC %sql
 # MAGIC USE journey;
-# MAGIC 
+# MAGIC
 # MAGIC DROP VIEW IF EXISTS household_metrics;
-# MAGIC 
+# MAGIC
 # MAGIC CREATE VIEW household_metrics
 # MAGIC AS
 # MAGIC   WITH 
@@ -81,9 +81,9 @@ import matplotlib.pyplot as plt
 # MAGIC         ON a.product_id=b.product_id
 # MAGIC       )
 # MAGIC   SELECT
-# MAGIC 
+# MAGIC
 # MAGIC     x.household_id,
-# MAGIC 
+# MAGIC
 # MAGIC     -- Purchase Date Level Metrics
 # MAGIC     COUNT(DISTINCT x.day) as purchase_dates,
 # MAGIC     COUNT(DISTINCT CASE WHEN y.product_id IS NOT NULL THEN x.day ELSE NULL END) as pdates_campaign_targeted,
@@ -99,7 +99,7 @@ import matplotlib.pyplot as plt
 # MAGIC     COUNT(DISTINCT CASE WHEN x.campaign_coupon_redemption = 1 AND x.instore_discount_applied = 1 THEN x.day ELSE NULL END) as pdates_campaign_coupon_redemption_instore_discount_applied,
 # MAGIC     COUNT(DISTINCT CASE WHEN x.campaign_coupon_redemption = 1 AND x.private_label = 1 AND x.instore_discount_applied = 1 THEN x.day ELSE NULL END) as pdates_campaign_coupon_redemption_private_label_instore_discount_applied,
 # MAGIC     COUNT(DISTINCT CASE WHEN x.manuf_coupon_redemption = 1 AND x.instore_discount_applied = 1 THEN x.day ELSE NULL END) as pdates_manuf_coupon_redemption_instore_discount_applied,
-# MAGIC 
+# MAGIC
 # MAGIC     -- List Amount Metrics
 # MAGIC     COALESCE(SUM(x.amount_list),0) as amount_list,
 # MAGIC     COALESCE(SUM(CASE WHEN y.product_id IS NOT NULL THEN 1 ELSE 0 END * x.amount_list),0) as amount_list_with_campaign_targeted,
@@ -115,7 +115,7 @@ import matplotlib.pyplot as plt
 # MAGIC     COALESCE(SUM(x.campaign_coupon_redemption * x.instore_discount_applied * x.amount_list),0) as amount_list_with_campaign_coupon_redemption_instore_discount_applied,
 # MAGIC     COALESCE(SUM(x.campaign_coupon_redemption * x.private_label * x.instore_discount_applied * x.amount_list),0) as amount_list_with_campaign_coupon_redemption_private_label_instore_discount_applied,
 # MAGIC     COALESCE(SUM(x.manuf_coupon_redemption * x.instore_discount_applied * x.amount_list),0) as amount_list_with_manuf_coupon_redemption_instore_discount_applied
-# MAGIC 
+# MAGIC
 # MAGIC   FROM product_spend x
 # MAGIC   LEFT OUTER JOIN targeted_products_by_household y
 # MAGIC     ON x.household_id=y.household_id AND x.product_id=y.product_id
@@ -127,19 +127,19 @@ import matplotlib.pyplot as plt
 # COMMAND ----------
 
 # MAGIC %md It is assumed that the households included in this dataset were selected based on a minimum level of activity spanning the 711 day period over which data is provided.  That said, different households demonstrate different levels of purchase frequency during his period as well as different levels of overall spend.  In order to normalize these values between households, we'll divide each metric by the total purchase dates or total list amount associated with that household over its available purchase history:
-# MAGIC 
+# MAGIC
 # MAGIC **NOTE** Normalizing the data based on total purchase dates and spend as we do in this next step may not be appropriate in all analyses. 
 
 # COMMAND ----------
 
 # DBTITLE 1,Convert Metrics to Features
 # MAGIC %sql
-# MAGIC 
+# MAGIC
 # MAGIC DROP VIEW IF EXISTS household_features;
-# MAGIC 
+# MAGIC
 # MAGIC CREATE VIEW household_features 
 # MAGIC AS 
-# MAGIC 
+# MAGIC
 # MAGIC SELECT
 # MAGIC       household_id,
 # MAGIC   
@@ -170,18 +170,18 @@ import matplotlib.pyplot as plt
 # MAGIC       amount_list_with_campaign_coupon_redemption_instore_discount_applied/amount_list as amount_list_with_campaign_coupon_redemption_instore_discount_applied,
 # MAGIC       amount_list_with_campaign_coupon_redemption_private_label_instore_discount_applied/amount_list as amount_list_with_campaign_coupon_redemption_private_label_instore_discount_applied,
 # MAGIC       amount_list_with_manuf_coupon_redemption_instore_discount_applied/amount_list as amount_list_with_manuf_coupon_redemption_instore_discount_applied
-# MAGIC 
+# MAGIC
 # MAGIC FROM household_metrics
 # MAGIC ORDER BY household_id;
-# MAGIC 
+# MAGIC
 # MAGIC SELECT * FROM household_features;
 
 # COMMAND ----------
 
 # MAGIC %md ## Step 2: Examine Distributions
-# MAGIC 
+# MAGIC
 # MAGIC Before proceeding, it's a good idea to examine our features closely to understand their compatibility with clustering techniques we might employ. In general, our preference would be to have standardized data with relatively normal distributions though that's not a hard requirement for every clustering algorithm.
-# MAGIC 
+# MAGIC
 # MAGIC To help us examine data distributions, we'll pull our data into a pandas Dataframe.  If our data volume were too large for pandas, we might consider taking a random sample (using the [*sample()*](https://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.DataFrame.sample) against the Spark DataFrame) to examine the distributions:
 
 # COMMAND ----------
@@ -256,23 +256,23 @@ for k in range(0,feature_count):
 # COMMAND ----------
 
 # MAGIC %md A quick visual inspection shows us that we have *zero-inflated distributions* associated with many of our features.  This is a common challenge when a feature attempts to measure the magnitude of an event that occurs with low frequency.  
-# MAGIC 
+# MAGIC
 # MAGIC There is a growing body of literature describing various techniques for dealing with zero-inflated distributions and even some zero-inflated models designed to work with them.  For our purposes, we will simply separate features with these distributions into two features, one of which will capture the occurrence of the event as a binary (categorical) feature and the other which will capture the magnitude of the event when it occurs:
-# MAGIC 
+# MAGIC
 # MAGIC **NOTE** We will label our binary features with a *has\_* prefix to make them more easily identifiable. We expect that if a household has zero purchase dates associated with an event, we'd expect that household also has no sales amount values for that event. With that in mind, we will create a single binary feature for an event and a secondary feature for each of the associated purchase date and amount list values.
 
 # COMMAND ----------
 
 # DBTITLE 1,Define Features to Address Zero-Inflated Distribution Problem
 # MAGIC %sql
-# MAGIC 
+# MAGIC
 # MAGIC DROP VIEW IF EXISTS household_features;
-# MAGIC 
+# MAGIC
 # MAGIC CREATE VIEW household_features 
 # MAGIC AS 
-# MAGIC 
+# MAGIC
 # MAGIC SELECT
-# MAGIC 
+# MAGIC
 # MAGIC       household_id,
 # MAGIC       
 # MAGIC       -- binary features
@@ -348,7 +348,7 @@ for k in range(0,feature_count):
 # MAGIC         ELSE NULL END as amount_list_with_campaign_coupon_redemption_private_label_instore_discount_applied,
 # MAGIC       CASE WHEN pdates_manuf_coupon_redemption_instore_discount_applied > 0 THEN amount_list_with_manuf_coupon_redemption_instore_discount_applied/amount_list 
 # MAGIC         ELSE NULL END as amount_list_with_manuf_coupon_redemption_instore_discount_applied
-# MAGIC 
+# MAGIC
 # MAGIC FROM household_metrics
 # MAGIC ORDER BY household_id;
 
@@ -458,9 +458,9 @@ for k in range(0, c_feature_count):
 # COMMAND ----------
 
 # MAGIC %md With the zeros removed from many of our problem features, we now have more standard distributions.  That said, may of those distributions are non-normal (not Gaussian), and Gaussian distributions could be really helpful with many clustering techniques.
-# MAGIC 
+# MAGIC
 # MAGIC One way to make these distributions more normal is to apply the Box-Cox transformation.  In our application of this transformation to these features (not shown), we found that many of the distributions failed to become much more normal than what is shown here.  So, we'll make use of another transformation which is a bit more assertive, the [quantile transformation](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.quantile_transform.html#sklearn.preprocessing.quantile_transform).
-# MAGIC 
+# MAGIC
 # MAGIC The quantile transformation calculates the cumulative probability function associated with the data points for a given feature.  This is a fancy way to say that the data for a feature are sorted and a function for calculating the percent rank of a value within the range of observed values is calculated. That percent ranking function provides the basis of mapping the data to a well-known distribution such as a normal distribution. The [exact math](https://www.sciencedirect.com/science/article/abs/pii/S1385725853500125) behind this transformation doesn't have to be fully understood for the utility of this transformation to be observed.  If this is your first introduction to quantile transformations, just know the technique has been around since the 1950s and is heavily used in many academic disciplines:
 
 # COMMAND ----------
@@ -512,7 +512,7 @@ for k in range(0,qc_feature_count):
 # COMMAND ----------
 
 # MAGIC %md ## Step 3: Examine Relationships
-# MAGIC 
+# MAGIC
 # MAGIC Now that we have our continuous features aligned with a normal distribution, let's examine the relationship between our feature variables, starting with our continuous features.  Using standard correlation, we can see we have a large number of highly related features.  The multicollinearity captured here, if not addressed, will cause our clustering to overemphasize some aspects of promotion response to the diminishment of others:
 
 # COMMAND ----------
@@ -540,7 +540,7 @@ hmap = sns.heatmap(
 # COMMAND ----------
 
 # MAGIC %md And what about relationships between our binary features?  Pearson's correlation (used in the heatmap above), doesn't produce valid results when dealing with categorical data. So instead, we'll calculate [Theil's Uncertainty Coefficient](https://en.wikipedia.org/wiki/Uncertainty_coefficient), a metric designed to examine to what degree the value of one binary measure predicts another.  Theil's U falls within a range between 0, where there is no predictive value between the variables, and 1, where there is perfect predictive value. What's really interesting about this metric is that it is **asymmetric** so that the score shows for one binary measure predicts the other but not necessarily the other way around.  This will mean we need to carefully examine the scores in the heatmap below and not assume a symmetry in output around the diagonal:
-# MAGIC 
+# MAGIC
 # MAGIC **NOTE** The primary author of the *dython* package from which we are taking the metric calculation has [an excellent article](https://towardsdatascience.com/the-search-for-categorical-correlation-a1cf7f1888c9) discussing Theil's U and related metrics.
 
 # COMMAND ----------
@@ -561,17 +561,17 @@ _ = dython.nominal.associations(
 # COMMAND ----------
 
 # MAGIC %md As with our continuous features, we have some problematic relationships between our binary variables that we need to address.  And what about the relationship between the continuous and categorical features? 
-# MAGIC 
+# MAGIC
 # MAGIC We know from how they were derived that a binary feature with a value of 0 will have a NULL/NaN value for its related continuous features and that any real value for a continuous feature will translate into a value of 1 for the associated binary feature. We don't need to calculate a metric to know we have a relationship between these features (though the calculation of a [Correlation Ratio](https://towardsdatascience.com/the-search-for-categorical-correlation-a1cf7f1888c9) might help us if we had any doubts).  So what are we going to do to address these and the previously mentioned relationships in our feature data?
-# MAGIC 
+# MAGIC
 # MAGIC When dealing with a large number of features, these relationships are typically addressed using dimension reduction techniques. These techniques project the data in such a way that the bulk of the variation in the data is captured by a smaller number of features.  Those features, often referred to as latent factors or principal components (depending on the technique employed) capture the underlying structure of the data that is reflected in the surface-level features, and they do so in a way that the overlapping explanatory power of the features, *i.e.* the multi-collinearity, is removed.
-# MAGIC 
+# MAGIC
 # MAGIC So which dimension reduction technique should we use?  **Principal Components Analysis (PCA)** is the most popular of these techniques but it can only be applied to datasets comprised of continuous features. **Mixed Component Analysis (MCA)** is another of these techniques but it can only be applied to datasets with categorical features. **Factor Analysis of Mixed Data (FAMD)** allows us to combine concepts from these two techniques to construct a reduced feature set when our data consists of both continuous and categorical data.  That said, we have a problem with applying FAMD to our feature data.
-# MAGIC 
+# MAGIC
 # MAGIC Typical implementations of both PCA and MCA (and therefore FAMD) require that no missing data values be present in the data.  Simple imputation using mean or median values for continuous features and frequently occurring values for categorical features will not work as the dimension reduction techniques key into the variation in the dataset, and these simple imputations fundamentally alter it. (For more on this, please check out [this excellent video](https://www.youtube.com/watch?v=OOM8_FH6_8o&feature=youtu.be). The video is focused on PCA but the information provided is applicable across all these techniques.)
-# MAGIC 
+# MAGIC
 # MAGIC In order to impute the data correctly, we need to examine the distribution of the existing data and leverage relationships between features to impute appropriate values from that distribution in a way that doesn't alter the projections. Work in this space is fairly nacent, but some Statisticians have worked out the mechanics for not only PCA and MCA but also FAMD.  Our challenge is that there are no libraries implementing these techniques in Python, but there are packages for this in R.
-# MAGIC 
+# MAGIC
 # MAGIC So now we need to get our data over to R.  To do this, let's our data as a temporary view with the Spark SQL engine.  This will allow us to query this data from R:
 
 # COMMAND ----------
@@ -596,7 +596,7 @@ spark.createDataFrame(trans_features_pd).createOrReplaceTempView('trans_features
 # DBTITLE 1,Install Required R Packages
 # MAGIC %r
 # MAGIC require(devtools)
-# MAGIC install.packages( c( "pbkrtest", "FactoMineR", "missMDA", "factoextra"), repos = "https://cran.microsoft.com/snapshot/2022-09-08/")
+# MAGIC install.packages( c( "pbkrtest", "FactoMineR", "missMDA", "factoextra"), repos = "https://packagemanager.posit.co/cran/2022-09-08")
 
 # COMMAND ----------
 
@@ -606,14 +606,14 @@ spark.createDataFrame(trans_features_pd).createOrReplaceTempView('trans_features
 
 # DBTITLE 1,Retrieve Spark Data to R Data Frame
 # MAGIC %r
-# MAGIC 
+# MAGIC
 # MAGIC # retrieve data from from Spark
 # MAGIC library(SparkR)
 # MAGIC df.spark <- SparkR::sql("SELECT * FROM trans_features_pd")
-# MAGIC 
+# MAGIC
 # MAGIC # move data to R data frame
 # MAGIC df.r <- SparkR::collect(df.spark)
-# MAGIC 
+# MAGIC
 # MAGIC summary(df.r)
 
 # COMMAND ----------
@@ -624,7 +624,7 @@ spark.createDataFrame(trans_features_pd).createOrReplaceTempView('trans_features
 
 # DBTITLE 1,Examine the R Data Frame's Structure
 # MAGIC %r
-# MAGIC 
+# MAGIC
 # MAGIC str(df.r)
 
 # COMMAND ----------
@@ -637,7 +637,7 @@ spark.createDataFrame(trans_features_pd).createOrReplaceTempView('trans_features
 # MAGIC %r
 # MAGIC library(dplyr)
 # MAGIC df.mutated <- mutate_if(df.r, is.character, as.factor)
-# MAGIC 
+# MAGIC
 # MAGIC str(df.mutated)
 
 # COMMAND ----------
@@ -648,14 +648,14 @@ spark.createDataFrame(trans_features_pd).createOrReplaceTempView('trans_features
 
 # DBTITLE 1,Determine Number of Components
 # MAGIC %r
-# MAGIC 
+# MAGIC
 # MAGIC library(missMDA)
-# MAGIC 
+# MAGIC
 # MAGIC # determine number of components to produce
 # MAGIC #nb <- estim_ncpFAMD(df.mutated, ncp.max=10, sup.var=1)
 # MAGIC nb <- list( c(8) ) 
 # MAGIC names(nb) <- c("ncp")
-# MAGIC 
+# MAGIC
 # MAGIC # display optimal number of components
 # MAGIC nb$ncp
 
@@ -667,10 +667,10 @@ spark.createDataFrame(trans_features_pd).createOrReplaceTempView('trans_features
 
 # DBTITLE 1,Impute Missing Values & Perform FAMD Transformation
 # MAGIC %r 
-# MAGIC 
+# MAGIC
 # MAGIC # impute missing values
 # MAGIC library(missMDA)
-# MAGIC 
+# MAGIC
 # MAGIC res.impute <- imputeFAMD(
 # MAGIC   df.mutated,      # dataset with categoricals organized as factors
 # MAGIC   ncp=nb$ncp,      # number of principal components
@@ -678,10 +678,10 @@ spark.createDataFrame(trans_features_pd).createOrReplaceTempView('trans_features
 # MAGIC   max.iter=10000,  # iterations to find optimal solution
 # MAGIC   sup.var=1        # ignore the household_id field (column 1)
 # MAGIC   ) 
-# MAGIC 
+# MAGIC
 # MAGIC # perform FAMD
 # MAGIC library(FactoMineR)
-# MAGIC 
+# MAGIC
 # MAGIC res.famd <- FAMD(
 # MAGIC   df.mutated,     # dataset with categoricals organized as factors
 # MAGIC   ncp=nb$ncp,     # number of principal components
@@ -698,10 +698,10 @@ spark.createDataFrame(trans_features_pd).createOrReplaceTempView('trans_features
 
 # DBTITLE 1,Plot Variance Captured by Components
 # MAGIC %r
-# MAGIC 
+# MAGIC
 # MAGIC library("ggplot2")
 # MAGIC library("factoextra")
-# MAGIC 
+# MAGIC
 # MAGIC eig.val <- get_eigenvalue(res.famd)
 # MAGIC print(eig.val)
 
@@ -713,7 +713,7 @@ spark.createDataFrame(trans_features_pd).createOrReplaceTempView('trans_features
 
 # DBTITLE 1,Visualize Households Leveraging First Two Components
 # MAGIC %r
-# MAGIC 
+# MAGIC
 # MAGIC fviz_famd_ind(
 # MAGIC   res.famd, 
 # MAGIC   axes=c(1,2),  # use principal components 1 & 2
@@ -726,30 +726,30 @@ spark.createDataFrame(trans_features_pd).createOrReplaceTempView('trans_features
 # COMMAND ----------
 
 # MAGIC %md Graphing our households by the first and second principal components indicates there may be some nice clusters of households within the data (as indicated by the grouping patterns in the chart). At a high-level, our data may indicate a couple large, we'll separated clusters, while at a lower-level, there may be some finer-grained clusters with overlapping boundaries within the larger groupings.
-# MAGIC 
+# MAGIC
 # MAGIC There are [many other types of visualization and analyses we can perform](http://www.sthda.com/english/articles/31-principal-component-methods-in-r-practical-guide/115-famd-factor-analysis-of-mixed-data-in-r-essentials/) on the FAMD results to gain a better understanding of how our base features are represented in each of the principal components, but we've got what we need for the purpose of clustering. We will now focus on getting the data from R and back into Python.
-# MAGIC 
+# MAGIC
 # MAGIC To get started, let's retrieve principal component values for each of our households:
 
 # COMMAND ----------
 
 # DBTITLE 1,Retrieve Household-Specific Values for Principal Components (Eigenvalues)
 # MAGIC %r
-# MAGIC 
+# MAGIC
 # MAGIC df.famd <- bind_cols(
 # MAGIC   dplyr::select(df.r, "household_id"), 
 # MAGIC   as.data.frame( res.famd$ind$coord ) 
 # MAGIC   )
-# MAGIC 
+# MAGIC
 # MAGIC head(df.famd)
 
 # COMMAND ----------
 
 # DBTITLE 1,Persist Eigenvalues to Delta
 # MAGIC %r
-# MAGIC 
+# MAGIC
 # MAGIC df.out <- createDataFrame(df.famd)
-# MAGIC 
+# MAGIC
 # MAGIC write.df(df.out, source = "delta", path = "/tmp/completejourney/silver/features_finalized", mode="overwrite", overwriteSchema="true")
 
 # COMMAND ----------
