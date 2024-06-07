@@ -1,9 +1,15 @@
 # Databricks notebook source
-# MAGIC %md
-# MAGIC # Import and setup
+# MAGIC %md 
+# MAGIC You may find this series of notebooks at https://github.com/databricks-industry-solutions/segmentation.git. For more information about this solution accelerator, visit https://www.databricks.com/solutions/accelerators/customer-segmentation.
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC The purpose of this notebook is to generate a description for each cluster.
+
+# COMMAND ----------
+
+# DBTITLE 1,Setup and import required librairies
 # MAGIC %pip install mlflow[databricks] textstat
 
 # COMMAND ----------
@@ -42,7 +48,7 @@ sns.set()
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC # Ground truth
+# MAGIC # Step 1: Define ground truth
 
 # COMMAND ----------
 
@@ -69,13 +75,7 @@ def get_eval_data():
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC # Method 1 
-# MAGIC Using a sampling of the input data
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC ## Data prep
+# MAGIC # Step 2: Data prep
 
 # COMMAND ----------
 
@@ -108,7 +108,7 @@ df_samples.value_counts(subset='hc_cluster').plot(kind='bar')
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ## Define prompt
+# MAGIC # Step 3: Define prompt
 
 # COMMAND ----------
 
@@ -133,7 +133,7 @@ prompt = prompt_template.format(dataset=df_samples.to_dict())
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ## Evaluate
+# MAGIC # Step 4: Evaluate
 
 # COMMAND ----------
 
@@ -172,12 +172,12 @@ with mlflow.start_run(run_name=endpoint_name) as run:
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ## Deploy
+# MAGIC # Step 5: Deploy & Infer
 
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ### Register model in UC
+# MAGIC ## Register model in UC
 
 # COMMAND ----------
 
@@ -206,7 +206,7 @@ model_metadata = mlflow.langchain.log_model(
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ### Inference
+# MAGIC ## Inference
 
 # COMMAND ----------
 
