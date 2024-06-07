@@ -22,17 +22,7 @@
 
 # COMMAND ----------
 
-# MAGIC %run "./config/Data Extract"
-
-# COMMAND ----------
-
 # MAGIC %md From there, we might prepare the data as follows:
-
-# COMMAND ----------
-
-# DBTITLE 1,Import Required Libraries
-from pyspark.sql.types import *
-from pyspark.sql.functions import min, max
 
 # COMMAND ----------
 
@@ -41,6 +31,16 @@ spark.sql(f'USE CATALOG {CATALOG}');
 spark.sql(f'DROP SCHEMA IF EXISTS {SCHEMA} CASCADE')
 spark.sql(f'CREATE SCHEMA IF NOT EXISTS {SCHEMA}')
 spark.sql(f'USE SCHEMA {SCHEMA}')
+
+# COMMAND ----------
+
+# MAGIC %run "./config/Data Extract"
+
+# COMMAND ----------
+
+# DBTITLE 1,Import Required Libraries
+from pyspark.sql.types import *
+from pyspark.sql.functions import min, max
 
 # COMMAND ----------
 

@@ -1,5 +1,5 @@
 # Databricks notebook source
-CATALOG = 'solacc'
+CATALOG = 'solacc_uc'
 SCHEMA = 'segmentation'
-VOLUME_NAME = 'raw_files'
+VOLUME_NAME = 'rawfiles'
 VOLUME_PATH = f"/Volumes/{CATALOG}/{SCHEMA}/{VOLUME_NAME}"

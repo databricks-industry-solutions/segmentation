@@ -34,7 +34,7 @@ os.environ['kaggle_key'] = dbutils.secrets.get("solution-accelerator-cicd", "kag
 # MAGIC export KAGGLE_USERNAME=$kaggle_username
 # MAGIC export KAGGLE_KEY=$kaggle_key
 # MAGIC kaggle datasets download -d frtgnn/dunnhumby-the-complete-journey
-# MAGIC unzip dunnhumby-the-complete-journey.zip
+# MAGIC unzip -o dunnhumby-the-complete-journey.zip
 
 # COMMAND ----------
 
@@ -42,7 +42,7 @@ os.environ['kaggle_key'] = dbutils.secrets.get("solution-accelerator-cicd", "kag
 
 # COMMAND ----------
 
-# MAGIC %run ./Unity Catalog
+# MAGIC %run "./Unity Catalog"
 
 # COMMAND ----------
 
