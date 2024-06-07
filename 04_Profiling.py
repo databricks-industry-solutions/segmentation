@@ -30,20 +30,28 @@ from pyspark.sql.functions import expr
 
 # COMMAND ----------
 
+# MAGIC %run "./config/Unity Catalog"
+
+# COMMAND ----------
+
+spark.sql(f'USE CATALOG {CATALOG}');
+spark.sql(f'USE SCHEMA {SCHEMA}')
+
+# COMMAND ----------
+
 # MAGIC %md ## Step 1: Assemble Segmented Dataset
-# MAGIC 
+# MAGIC
 # MAGIC We now have clusters but we're not really clear on what exactly they represent.  The feature engineering work we performed to avoid problems with the data that might lead us to invalid or inappropriate solutions have made the data very hard to interpret.  
-# MAGIC 
+# MAGIC
 # MAGIC To address this problem, we'll retrieve the cluster labels (assigned to each household) along with the original features associated with each:
 
 # COMMAND ----------
 
 # DBTITLE 1,Retrieve Features & Labels
 # retrieve features and labels
-spark.sql("USE journey")
 household_basefeatures = spark.table('household_features')
-household_finalfeatures = spark.table('DELTA.`/tmp/completejourney/silver/features_finalized/`')
-labels = spark.table('DELTA.`/tmp/completejourney/gold/household_clusters/`')
+household_finalfeatures = spark.table('silver_features_finalized')
+labels = spark.table('gold_household_clusters')
 
 # assemble labeled feature sets
 labeled_basefeatures_pd = (
@@ -75,7 +83,7 @@ cluster_colors = [cm.nipy_spectral(float(i)/cluster_count) for i in range(cluste
 # COMMAND ----------
 
 # MAGIC %md ## Step 2: Profile Segments
-# MAGIC 
+# MAGIC
 # MAGIC To get us started, let's revisit the 2-dimensional visualization of our clusters to get us oriented to the clusters.  The color-coding we use in this chart will be applied across our remaining visualizations to make it easier to determine the cluster being explored:
 
 # COMMAND ----------
@@ -231,7 +239,7 @@ profile_segments_by_features(labeled_basefeatures_pd, feature_names, cluster_col
 # COMMAND ----------
 
 # MAGIC %md There's a lot to examine in this plot but the easiest thing seems to be to start with the categorical features to identify groups responsive to some promotional offers and not others.  The continuous features then provide a bit more insight into the degree of engagement when that cluster does respond.  
-# MAGIC 
+# MAGIC
 # MAGIC As you work your way through the various features, you will likely start to form descriptions of the different clusters.  To assist with that, it might help to retrieve specific subsets of features to focus your attention on a smaller number of features:
 
 # COMMAND ----------
@@ -244,14 +252,14 @@ profile_segments_by_features(labeled_basefeatures_pd, feature_names, cluster_col
 # COMMAND ----------
 
 # MAGIC %md ## Step 3: Describe Segments
-# MAGIC 
+# MAGIC
 # MAGIC With close examination of the features you should hopefully come to differentiate the clusters in terms of their behavior.  Now it becomes interesting to examine why these groups might exist and/or how we might be able to identify likely group membership without collecting multiple years of behavioral information. A common way to do this is to examine the clusters in terms of characteristics that were not employed in the cluster design. With this dataset, we might employ demographic information available for a subset of our households for this purpose:
 
 # COMMAND ----------
 
 # DBTITLE 1,Associate Household Demographics with Cluster Labels
-labels = spark.table('DELTA.`/tmp/completejourney/gold/household_clusters/`').alias('labels')
-demographics = spark.table('households').alias('demographics')
+labels = spark.table('gold_household_clusters').alias('labels')
+demographics = spark.table('silver_households').alias('demographics')
 
 labeled_demos = (
   labels
@@ -280,16 +288,16 @@ for c in range(cluster_count):
 
   # calculate members with value 0
   try:
-    c_0 = x.loc[c,0]['count']/c_count
+    c_0 = x.loc[c,'count'][False]/c_count
   except:
     c_0 = 0
 
   # calculate members with value 1
   try:
-    c_1 = x.loc[c,1]['count']/c_count
+    c_1 = x.loc[c,'count'][True]/c_count
   except:
     c_1 = 0
-  
+
   # plot counts
   plt.bar([c], c_1, color=cluster_colors[c], edgecolor='white')
   plt.bar([c], c_0, bottom=c_1, color=cluster_colors[c], edgecolor='white', alpha=0.25)
@@ -299,7 +307,7 @@ for c in range(cluster_count):
 # COMMAND ----------
 
 # MAGIC %md Ideally, we would have demographic data for all households in the dataset or least for a large, consistent proportion of members across each cluster.  Without that, we need to be cautious about drawing any conclusions from these data.
-# MAGIC 
+# MAGIC
 # MAGIC Still, we might continue with the exercise in order to demonstrate technique.  With that in mind, let's construct a contingency table for head of household age-bracket to see how cluster members align around age:
 
 # COMMAND ----------
@@ -365,5 +373,5 @@ _ = fig.set_size_inches((10,8))
 # COMMAND ----------
 
 # MAGIC %md ## Step 4: Next Steps
-# MAGIC 
+# MAGIC
 # MAGIC Segmentation is rarely a one-and-done exercise. Instead, having learned from this pass with the data, we might repeat the analysis, removing non-differentiating features and possibly including others. In addition, we might perform other analyses such as RFM segmentations or CLV analysis and then examine how these relate to the segmentation design explored here.  Eventually, we may arrive at a new segmentation design, but even if we don't, we have gained insights which may help us better craft promotional campaigns.

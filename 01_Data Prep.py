@@ -9,12 +9,16 @@
 # COMMAND ----------
 
 # MAGIC %md ## Step 1: Access the Data
-# MAGIC 
+# MAGIC
 # MAGIC The purpose of this exercise is to demonstrate how a Promotions Management team interested in segmenting customer households based on promotion responsiveness might perform the analytics portion of their work.  The dataset we will use has been made available by Dunnhumby via Kaggle and is referred to as [*The Complete Journey*](https://www.kaggle.com/frtgnn/dunnhumby-the-complete-journey). It consists of numerous files identifying household purchasing activity in combination with various promotional campaigns for about 2,500 households over a nearly 2 year period. The schema of the overall dataset may be represented as follows:
-# MAGIC 
+# MAGIC
 # MAGIC <img src='https://brysmiwasb.blob.core.windows.net/demos/images/segmentation_journey_schema3.png' width=500>
-# MAGIC 
+# MAGIC
 # MAGIC To make this data available for our analysis, you can download, extract and load to the permanent location of the *bronze* folder of a [cloud-storage mount point](https://docs.databricks.com/data/databricks-file-system.html#mount-object-storage-to-dbfs) named */mnt/completejourney*.  We have automated this downloading step for you and use a */tmp/completejourney* storage path throughout this accelerator.  
+
+# COMMAND ----------
+
+# MAGIC %run "./config/Unity Catalog"
 
 # COMMAND ----------
 
@@ -32,25 +36,17 @@ from pyspark.sql.functions import min, max
 
 # COMMAND ----------
 
-# DBTITLE 1,Create Database
-# MAGIC %sql
-# MAGIC 
-# MAGIC DROP DATABASE IF EXISTS journey CASCADE;
-# MAGIC CREATE DATABASE journey;
-# MAGIC USE journey;
-
-# COMMAND ----------
-
-# DBTITLE 1,Initialize silver table paths
-# MAGIC %sh
-# MAGIC rm -r /dbfs/tmp/completejourney/silver/ 
-# MAGIC mkdir -p /dbfs/tmp/completejourney/silver/
+spark.sql(f"CREATE CATALOG IF NOT EXISTS {CATALOG}")
+spark.sql(f'USE CATALOG {CATALOG}');
+spark.sql(f'DROP SCHEMA IF EXISTS {SCHEMA} CASCADE')
+spark.sql(f'CREATE SCHEMA IF NOT EXISTS {SCHEMA}')
+spark.sql(f'USE SCHEMA {SCHEMA}')
 
 # COMMAND ----------
 
 # DBTITLE 1,Transactions
 # delete the old table if needed
-_ = spark.sql('DROP TABLE IF EXISTS transactions')
+_ = spark.sql('DROP TABLE IF EXISTS silver_transactions')
 
 # expected structure of the file
 transactions_schema = StructType([
@@ -72,7 +68,7 @@ transactions_schema = StructType([
 ( spark
     .read
     .csv(
-      '/tmp/completejourney/bronze/transaction_data.csv',
+      f'{VOLUME_PATH}/bronze/transaction_data.csv',
       header=True,
       schema=transactions_schema
       )
@@ -80,26 +76,14 @@ transactions_schema = StructType([
     .format('delta')
     .mode('overwrite')
     .option('overwriteSchema', 'true')
-    .save('/tmp/completejourney/silver/transactions')
-  )
-
-# create table object to make delta lake queryable
-_ = spark.sql('''
-    CREATE TABLE transactions 
-    USING DELTA 
-    LOCATION '/tmp/completejourney/silver/transactions'
-    ''')
-
-# show data
-display(
-  spark.table('transactions')
-  )
+    .saveAsTable('silver_transactions')
+)
 
 # COMMAND ----------
 
 # DBTITLE 1,Products
 # delete the old table if needed
-_ = spark.sql('DROP TABLE IF EXISTS products')
+_ = spark.sql('DROP TABLE IF EXISTS silver_products')
 
 # expected structure of the file
 products_schema = StructType([
@@ -116,7 +100,7 @@ products_schema = StructType([
 ( spark
     .read
     .csv(
-      '/tmp/completejourney/bronze/product.csv',
+      f'{VOLUME_PATH}/bronze/product.csv',
       header=True,
       schema=products_schema
       )
@@ -124,26 +108,14 @@ products_schema = StructType([
     .format('delta')
     .mode('overwrite')
     .option('overwriteSchema', 'true')
-    .save('/tmp/completejourney/silver/products')
-  )
-
-# create table object to make delta lake queryable
-_ = spark.sql('''
-    CREATE TABLE products
-    USING DELTA 
-    LOCATION '/tmp/completejourney/silver/products'
-    ''')
-
-# show data
-display(
-  spark.table('products')
-  )
+    .saveAsTable('silver_products')
+)
 
 # COMMAND ----------
 
 # DBTITLE 1,Households
 # delete the old table if needed
-_ = spark.sql('DROP TABLE IF EXISTS households')
+_ = spark.sql('DROP TABLE IF EXISTS silver_households')
 
 # expected structure of the file
 households_schema = StructType([
@@ -162,7 +134,7 @@ households = (
   spark
     .read
     .csv(
-      '/tmp/completejourney/bronze/hh_demographic.csv',
+      f'{VOLUME_PATH}/bronze/hh_demographic.csv',
       header=True,
       schema=households_schema
       )
@@ -240,26 +212,15 @@ composition_lookup.createOrReplaceTempView('composition_lookup')
     .format('delta')
     .mode('overwrite')
     .option('overwriteSchema', 'true')
-    .save('/tmp/completejourney/silver/households')
-  )
+    .saveAsTable('silver_households')
+)
 
-# create table object to make delta lake queryable
-_ = spark.sql('''
-    CREATE TABLE households 
-    USING DELTA 
-    LOCATION '/tmp/completejourney/silver/households'
-    ''')
-
-# show data
-display(
-  spark.table('households')
-  )
 
 # COMMAND ----------
 
 # DBTITLE 1,Coupons
 # delete the old table if needed
-_ = spark.sql('DROP TABLE IF EXISTS coupons')
+_ = spark.sql('DROP TABLE IF EXISTS silver_coupons')
 
 # expected structure of the file
 coupons_schema = StructType([
@@ -272,7 +233,7 @@ coupons_schema = StructType([
 ( spark
     .read
     .csv(
-      '/tmp/completejourney/bronze/coupon.csv',
+      f'{VOLUME_PATH}/bronze/coupon.csv',
       header=True,
       schema=coupons_schema
       )
@@ -280,26 +241,14 @@ coupons_schema = StructType([
     .format('delta')
     .mode('overwrite')
     .option('overwriteSchema', 'true')
-    .save('/tmp/completejourney/silver/coupons')
-  )
-
-# create table object to make delta lake queryable
-_ = spark.sql('''
-    CREATE TABLE coupons
-    USING DELTA 
-    LOCATION '/tmp/completejourney/silver/coupons'
-    ''')
-
-# show data
-display(
-  spark.table('coupons')
-  )
+    .saveAsTable('silver_coupons')
+)
 
 # COMMAND ----------
 
 # DBTITLE 1,Campaigns
 # delete the old table if needed
-_ = spark.sql('DROP TABLE IF EXISTS campaigns')
+_ = spark.sql('DROP TABLE IF EXISTS silver_campaigns')
 
 # expected structure of the file
 campaigns_schema = StructType([
@@ -313,7 +262,7 @@ campaigns_schema = StructType([
 ( spark
     .read
     .csv(
-      '/tmp/completejourney/bronze/campaign_desc.csv',
+      f'{VOLUME_PATH}/bronze/campaign_desc.csv',
       header=True,
       schema=campaigns_schema
       )
@@ -321,26 +270,14 @@ campaigns_schema = StructType([
     .format('delta')
     .mode('overwrite')
     .option('overwriteSchema', 'true')
-    .save('/tmp/completejourney/silver/campaigns')
-  )
-
-# create table object to make delta lake queryable
-_ = spark.sql('''
-    CREATE TABLE campaigns
-    USING DELTA 
-    LOCATION '/tmp/completejourney/silver/campaigns'
-    ''')
-
-# show data
-display(
-  spark.table('campaigns')
-  )
+    .saveAsTable('silver_campaigns')
+)
 
 # COMMAND ----------
 
 # DBTITLE 1,Coupon Redemptions
 # delete the old table if needed
-_ = spark.sql('DROP TABLE IF EXISTS coupon_redemptions')
+_ = spark.sql('DROP TABLE IF EXISTS silver_coupon_redemptions')
 
 # expected structure of the file
 coupon_redemptions_schema = StructType([
@@ -354,7 +291,7 @@ coupon_redemptions_schema = StructType([
 ( spark
     .read
     .csv(
-      '/tmp/completejourney/bronze/coupon_redempt.csv',
+      f'{VOLUME_PATH}/bronze/coupon_redempt.csv',
       header=True,
       schema=coupon_redemptions_schema
       )
@@ -362,26 +299,15 @@ coupon_redemptions_schema = StructType([
     .format('delta')
     .mode('overwrite')
     .option('overwriteSchema', 'true')
-    .save('/tmp/completejourney/silver/coupon_redemptions')
-  )
+    .saveAsTable('silver_coupon_redemptions')
+)
 
-# create table object to make delta lake queryable
-_ = spark.sql('''
-    CREATE TABLE coupon_redemptions
-    USING DELTA 
-    LOCATION '/tmp/completejourney/silver/coupon_redemptions'
-    ''')
-
-# show data
-display(
-  spark.table('coupon_redemptions')
-  )
 
 # COMMAND ----------
 
 # DBTITLE 1,Campaign-Household Relationships
 # delete the old table if needed
-_ = spark.sql('DROP TABLE IF EXISTS campaigns_households')
+_ = spark.sql('DROP TABLE IF EXISTS silver_campaigns_households')
 
 # expected structure of the file
 campaigns_households_schema = StructType([
@@ -394,7 +320,7 @@ campaigns_households_schema = StructType([
 ( spark
     .read
     .csv(
-      '/tmp/completejourney/bronze/campaign_table.csv',
+      f'{VOLUME_PATH}/bronze/campaign_table.csv',
       header=True,
       schema=campaigns_households_schema
       )
@@ -402,26 +328,14 @@ campaigns_households_schema = StructType([
     .format('delta')
     .mode('overwrite')
     .option('overwriteSchema', 'true')
-    .save('/tmp/completejourney/silver/campaigns_households')
-  )
-
-# create table object to make delta lake queryable
-_ = spark.sql('''
-    CREATE TABLE campaigns_households
-    USING DELTA 
-    LOCATION '/tmp/completejourney/silver/campaigns_households'
-    ''')
-
-# show data
-display(
-  spark.table('campaigns_households')
-  )
+    .saveAsTable('silver_campaigns_households')
+)
 
 # COMMAND ----------
 
 # DBTITLE 1,Causal Data
 # delete the old table if needed
-_ = spark.sql('DROP TABLE IF EXISTS causal_data')
+_ = spark.sql('DROP TABLE IF EXISTS silver_causal_data')
 
 # expected structure of the file
 causal_data_schema = StructType([
@@ -436,7 +350,7 @@ causal_data_schema = StructType([
 ( spark
     .read
     .csv(
-      '/tmp/completejourney/bronze/causal_data.csv',
+      f'{VOLUME_PATH}/bronze/causal_data.csv',
       header=True,
       schema=causal_data_schema
       )
@@ -444,37 +358,26 @@ causal_data_schema = StructType([
     .format('delta')
     .mode('overwrite')
     .option('overwriteSchema', 'true')
-    .save('/tmp/completejourney/silver/causal_data')
-  )
+    .saveAsTable('silver_causal_data')
+)
 
-# create table object to make delta lake queryable
-_ = spark.sql('''
-    CREATE TABLE causal_data
-    USING DELTA 
-    LOCATION '/tmp/completejourney/silver/causal_data'
-    ''')
-
-# show data
-display(
-  spark.table('causal_data')
-  )
 
 # COMMAND ----------
 
 # MAGIC %md ## Step 2: Adjust Transactional Data
-# MAGIC 
+# MAGIC
 # MAGIC With the raw data loaded, we need to make some adjustments to the transactional data.  While this dataset is focused on retailer-managed campaigns, the inclusion of coupon discount matching information would indicate the transaction data reflects discounts originating from both retailer- and manufacturer-generated coupons.  Without the ability to link a specific product-transaction to a specific coupon (when a redemption takes place), we will assume that any *coupon_discount* value associated with a non-zero *coupon_discount_match* value originates from a manufacturer's coupon.  All other coupon discounts will be assumed to be from retailer-generated coupons.  
-# MAGIC 
+# MAGIC
 # MAGIC In addition to the separation of retailer and manufacturer coupon discounts, we will calculate a list amount for a product as the sales amount minus all discounts applied:
 
 # COMMAND ----------
 
 # DBTITLE 1,Adjusted Transactions
 # MAGIC %sql
-# MAGIC 
-# MAGIC DROP TABLE IF EXISTS transactions_adj;
-# MAGIC 
-# MAGIC CREATE TABLE transactions_adj
+# MAGIC
+# MAGIC DROP TABLE IF EXISTS silver_transactions_adj;
+# MAGIC
+# MAGIC CREATE TABLE silver_transactions_adj
 # MAGIC USING DELTA
 # MAGIC AS
 # MAGIC   SELECT
@@ -516,27 +419,27 @@ display(
 # MAGIC       COALESCE(-1 * discount_amount,0.0) as instore_discount,
 # MAGIC       COALESCE(sales_amount,0.0) as amount_paid,
 # MAGIC       quantity as units
-# MAGIC     FROM transactions
+# MAGIC     FROM silver_transactions
 # MAGIC     );
 # MAGIC     
-# MAGIC SELECT * FROM transactions_adj;
+# MAGIC SELECT * FROM silver_transactions_adj;
 
 # COMMAND ----------
 
 # MAGIC %md ## Step 3: Explore the Data
-# MAGIC 
+# MAGIC
 # MAGIC The exact start and end dates for the records in this dataset are unknown.  Instead, days are represented by values between 1 and 711 which would seem to indicate the days since the beginning of the dataset:
 
 # COMMAND ----------
 
 # DBTITLE 1,Household Data in Transactions
 # MAGIC %sql
-# MAGIC 
+# MAGIC
 # MAGIC SELECT
 # MAGIC   COUNT(DISTINCT household_id) as uniq_households_in_transactions,
 # MAGIC   MIN(day) as first_day,
 # MAGIC   MAX(day) as last_day
-# MAGIC FROM transactions_adj;
+# MAGIC FROM silver_transactions_adj;
 
 # COMMAND ----------
 
@@ -546,37 +449,37 @@ display(
 
 # DBTITLE 1,Household Data in Campaigns
 # MAGIC %sql
-# MAGIC 
+# MAGIC
 # MAGIC SELECT
 # MAGIC   COUNT(DISTINCT a.household_id) as uniq_households_in_transactions,
 # MAGIC   COUNT(DISTINCT b.household_id) as uniq_households_in_campaigns,
 # MAGIC   COUNT(CASE WHEN a.household_id==b.household_id THEN 1 ELSE NULL END) as uniq_households_in_both
-# MAGIC FROM (SELECT DISTINCT household_id FROM transactions_adj) a
-# MAGIC FULL OUTER JOIN (SELECT DISTINCT household_id FROM campaigns_households) b
+# MAGIC FROM (SELECT DISTINCT household_id FROM silver_transactions_adj) a
+# MAGIC FULL OUTER JOIN (SELECT DISTINCT household_id FROM silver_campaigns_households) b
 # MAGIC   ON a.household_id=b.household_id
 
 # COMMAND ----------
 
 # MAGIC %md When coupons are sent to a household as part of a campaign, the data indicate which products were associated with these coupons. The *coupon_redemptions* table provides us details about which of these coupons have been redeemed on which days by a given household. However, the coupon itself is not identified on a given transaction line item.
-# MAGIC 
+# MAGIC
 # MAGIC Instead of working through the association of specific line items back to coupon redemptions and thereby tying transactions to specific campaigns, we've elected to simply attribute all line items associated with products promoted by campaigns as affected by the campaign whether or not a coupon redemption occurred.  This is a bit sloppy but we are doing this to simplify our overall logic. In a real-world analysis of these data, **this is a simplification that should be revisited**. In addition, please note that we are not examining the influence of in-store displays and store-specific fliers (as captured in the *causal_data* table).  Again, we are doing this in order to simplify our analysis.
-# MAGIC 
+# MAGIC
 # MAGIC The logic shown here illustrates how we will associate campaigns with product purchases and will be reproduced in our feature engineering notebook:
 
 # COMMAND ----------
 
 # DBTITLE 1,Transaction Line Items Flagged for Promotional Influences
 # MAGIC %sql
-# MAGIC 
+# MAGIC
 # MAGIC WITH 
 # MAGIC     targeted_products_by_household AS (
 # MAGIC       SELECT DISTINCT
 # MAGIC         b.household_id,
 # MAGIC         c.product_id
-# MAGIC       FROM campaigns a
-# MAGIC       INNER JOIN campaigns_households b
+# MAGIC       FROM silver_campaigns a
+# MAGIC       INNER JOIN silver_campaigns_households b
 # MAGIC         ON a.campaign_id=b.campaign_id
-# MAGIC       INNER JOIN coupons c
+# MAGIC       INNER JOIN silver_coupons c
 # MAGIC         ON a.campaign_id=c.campaign_id
 # MAGIC       )
 # MAGIC SELECT
@@ -589,8 +492,8 @@ display(
 # MAGIC   CASE WHEN a.instore_discount > 0 THEN 1 ELSE 0 END as instore_discount_applied,
 # MAGIC   CASE WHEN b.brand = 'Private' THEN 1 ELSE 0 END as private_label,
 # MAGIC   CASE WHEN c.product_id IS NULL THEN 0 ELSE 1 END as campaign_targeted
-# MAGIC FROM transactions_adj a
-# MAGIC INNER JOIN products b
+# MAGIC FROM silver_transactions_adj a
+# MAGIC INNER JOIN silver_products b
 # MAGIC   ON a.product_id=b.product_id
 # MAGIC LEFT OUTER JOIN targeted_products_by_household c
 # MAGIC   ON a.household_id=c.household_id AND 
@@ -599,14 +502,14 @@ display(
 # COMMAND ----------
 
 # MAGIC %md One last thing to note, this dataset includes demographic data for only about 800 of the 2,500 households found in the transaction history. These data will be useful for profiling purposes, but we need to be careful before drawing conclusions from such a small sample of the data.
-# MAGIC 
+# MAGIC
 # MAGIC Similarly, have no details on how the 2,500 households in the data set were selected.  All conclusions drawn from our analysis should be viewed with a recognition of this limitation:
 
 # COMMAND ----------
 
 # DBTITLE 1,Households with Demographic Data
 # MAGIC %sql
-# MAGIC 
+# MAGIC
 # MAGIC SELECT
 # MAGIC   COUNT(DISTINCT a.household_id) as uniq_households_in_transactions,
 # MAGIC   COUNT(DISTINCT b.household_id) as uniq_households_in_campaigns,
@@ -614,8 +517,8 @@ display(
 # MAGIC   COUNT(CASE WHEN a.household_id==c.household_id THEN 1 ELSE NULL END) as uniq_households_in_transactions_households,
 # MAGIC   COUNT(CASE WHEN b.household_id==c.household_id THEN 1 ELSE NULL END) as uniq_households_in_campaigns_households,
 # MAGIC   COUNT(CASE WHEN a.household_id==c.household_id AND b.household_id==c.household_id THEN 1 ELSE NULL END) as uniq_households_in_all
-# MAGIC FROM (SELECT DISTINCT household_id FROM transactions_adj) a
-# MAGIC LEFT OUTER JOIN (SELECT DISTINCT household_id FROM campaigns_households) b
+# MAGIC FROM (SELECT DISTINCT household_id FROM silver_transactions_adj) a
+# MAGIC LEFT OUTER JOIN (SELECT DISTINCT household_id FROM silver_campaigns_households) b
 # MAGIC   ON a.household_id=b.household_id
-# MAGIC LEFT OUTER JOIN households c
+# MAGIC LEFT OUTER JOIN silver_households c
 # MAGIC   ON a.household_id=c.household_id

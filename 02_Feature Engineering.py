@@ -13,6 +13,10 @@
 
 # COMMAND ----------
 
+dbutils.library.restartPython()
+
+# COMMAND ----------
+
 # DBTITLE 1,Import Required Libraries
 from sklearn.preprocessing import quantile_transform
 
@@ -24,6 +28,15 @@ import pandas as pd
 
 import seaborn as sns
 import matplotlib.pyplot as plt
+
+# COMMAND ----------
+
+# MAGIC %run "./config/Unity Catalog"
+
+# COMMAND ----------
+
+spark.sql(f'USE CATALOG {CATALOG}');
+spark.sql(f'USE SCHEMA {SCHEMA}')
 
 # COMMAND ----------
 
@@ -43,8 +56,6 @@ import matplotlib.pyplot as plt
 
 # DBTITLE 1,Derive Relevant Metrics
 # MAGIC %sql
-# MAGIC USE journey;
-# MAGIC
 # MAGIC DROP VIEW IF EXISTS household_metrics;
 # MAGIC
 # MAGIC CREATE VIEW household_metrics
@@ -54,10 +65,10 @@ import matplotlib.pyplot as plt
 # MAGIC       SELECT DISTINCT
 # MAGIC         b.household_id,
 # MAGIC         c.product_id
-# MAGIC       FROM campaigns a
-# MAGIC       INNER JOIN campaigns_households b
+# MAGIC       FROM silver_campaigns a
+# MAGIC       INNER JOIN silver_campaigns_households b
 # MAGIC         ON a.campaign_id=b.campaign_id
-# MAGIC       INNER JOIN coupons c
+# MAGIC       INNER JOIN silver_coupons c
 # MAGIC         ON a.campaign_id=c.campaign_id
 # MAGIC       ),
 # MAGIC     product_spend AS (
@@ -76,8 +87,8 @@ import matplotlib.pyplot as plt
 # MAGIC         a.total_coupon_discount,
 # MAGIC         a.instore_discount,
 # MAGIC         a.amount_paid  
-# MAGIC       FROM transactions_adj a
-# MAGIC       INNER JOIN products b
+# MAGIC       FROM silver_transactions_adj a
+# MAGIC       INNER JOIN silver_products b
 # MAGIC         ON a.product_id=b.product_id
 # MAGIC       )
 # MAGIC   SELECT
@@ -749,14 +760,15 @@ spark.createDataFrame(trans_features_pd).createOrReplaceTempView('trans_features
 # MAGIC %r
 # MAGIC
 # MAGIC df.out <- createDataFrame(df.famd)
+# MAGIC saveAsTable(df.out, tableName = "silver_features_finalized", mode="overwrite", overwriteSchema="true") 
 # MAGIC
-# MAGIC write.df(df.out, source = "delta", path = "/tmp/completejourney/silver/features_finalized", mode="overwrite", overwriteSchema="true")
+# MAGIC #write.df(df.out, source = "delta", path = "/tmp/completejourney/silver/features_finalized", mode="overwrite", overwriteSchema="true")
 
 # COMMAND ----------
 
 # DBTITLE 1,Retrieve Eigenvalues in Python
 display(
-  spark.table('DELTA.`/tmp/completejourney/silver/features_finalized/`')
+  spark.table('silver_features_finalized')
   )
 
 # COMMAND ----------
@@ -767,7 +779,7 @@ display(
 
 # DBTITLE 1,Examine Relationships between Reduced Dimensions
 # generate correlations between features
-famd_features_corr = spark.table('DELTA.`/tmp/completejourney/silver/features_finalized/`').drop('household_id').toPandas().corr()
+famd_features_corr = spark.table('silver_features_finalized').drop('household_id').toPandas().corr()
 
 # assemble a mask to remove top-half of heatmap
 top_mask = np.zeros(famd_features_corr.shape, dtype=bool)
