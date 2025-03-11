@@ -7,6 +7,10 @@
 
 # COMMAND ----------
 
+dbutils.library.restartPython()
+
+# COMMAND ----------
+
 # MAGIC %md 
 # MAGIC Set Kaggle credential configuration values in the block below: You can set up a [secret scope](https://docs.databricks.com/security/secrets/secret-scopes.html) to manage credentials used in notebooks. For the block below, we have manually set up the `solution-accelerator-cicd` secret scope and saved our credentials there for internal testing purposes.
 
@@ -30,7 +34,7 @@ os.environ['kaggle_key'] = dbutils.secrets.get("solution-accelerator-cicd", "kag
 # MAGIC export KAGGLE_USERNAME=$kaggle_username
 # MAGIC export KAGGLE_KEY=$kaggle_key
 # MAGIC kaggle datasets download -d frtgnn/dunnhumby-the-complete-journey
-# MAGIC unzip dunnhumby-the-complete-journey.zip
+# MAGIC unzip -o dunnhumby-the-complete-journey.zip
 
 # COMMAND ----------
 
@@ -38,15 +42,24 @@ os.environ['kaggle_key'] = dbutils.secrets.get("solution-accelerator-cicd", "kag
 
 # COMMAND ----------
 
-dbutils.fs.mv("file:/databricks/driver/campaign_desc.csv", "dbfs:/tmp/completejourney/bronze/campaign_desc.csv")
-dbutils.fs.mv("file:/databricks/driver/campaign_table.csv", "dbfs:/tmp/completejourney/bronze/campaign_table.csv")
-dbutils.fs.mv("file:/databricks/driver/causal_data.csv", "dbfs:/tmp/completejourney/bronze/causal_data.csv")
-dbutils.fs.mv("file:/databricks/driver/coupon.csv", "dbfs:/tmp/completejourney/bronze/coupon.csv")
-dbutils.fs.mv("file:/databricks/driver/coupon_redempt.csv", "dbfs:/tmp/completejourney/bronze/coupon_redempt.csv")
-dbutils.fs.mv("file:/databricks/driver/hh_demographic.csv", "dbfs:/tmp/completejourney/bronze/hh_demographic.csv")
-dbutils.fs.mv("file:/databricks/driver/product.csv", "dbfs:/tmp/completejourney/bronze/product.csv")
-dbutils.fs.mv("file:/databricks/driver/transaction_data.csv", "dbfs:/tmp/completejourney/bronze/transaction_data.csv")
+# MAGIC %run "./Unity Catalog"
 
 # COMMAND ----------
 
+spark.sql(f'USE CATALOG {CATALOG}');
+spark.sql(f'USE SCHEMA {SCHEMA}');
 
+# COMMAND ----------
+
+spark.sql(f'CREATE VOLUME IF NOT EXISTS {VOLUME_NAME}');
+
+# COMMAND ----------
+
+dbutils.fs.mv("file:/databricks/driver/campaign_desc.csv", f"{VOLUME_PATH}/bronze/campaign_desc.csv")
+dbutils.fs.mv("file:/databricks/driver/campaign_table.csv", f"{VOLUME_PATH}/bronze/campaign_table.csv")
+dbutils.fs.mv("file:/databricks/driver/causal_data.csv", f"{VOLUME_PATH}/bronze/causal_data.csv")
+dbutils.fs.mv("file:/databricks/driver/coupon.csv", f"{VOLUME_PATH}/bronze/coupon.csv")
+dbutils.fs.mv("file:/databricks/driver/coupon_redempt.csv", f"{VOLUME_PATH}/bronze/coupon_redempt.csv")
+dbutils.fs.mv("file:/databricks/driver/hh_demographic.csv", f"{VOLUME_PATH}/bronze/hh_demographic.csv")
+dbutils.fs.mv("file:/databricks/driver/product.csv", f"{VOLUME_PATH}/bronze/product.csv")
+dbutils.fs.mv("file:/databricks/driver/transaction_data.csv", f"{VOLUME_PATH}/bronze/transaction_data.csv")
