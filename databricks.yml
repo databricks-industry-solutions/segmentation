@@ -14,7 +14,7 @@ targets:
     mode: development
     default: true
     workspace:
-      root_path: /Shared/customer-segmentation
+      root_path: ~/.databricks/bundles/customer-segmentation
 
   prod:
     mode: production
