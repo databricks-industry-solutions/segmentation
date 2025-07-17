@@ -57,7 +57,7 @@ customer-segmentation/
 ├── databricks.yml                 # Databricks Asset Bundle configuration
 ├── notebooks/
 │   ├── 01_Data_Setup.py          # Synthetic data generation
-│   ├── 02_Segmentation_DLT.py    # Lakeflow Declarative Pipelines for segmentation
+│   ├── 02_Segmentation_Lakeflow.py    # Lakeflow Declarative Pipelines for segmentation
 │   └── 03_Business_Insights.py   # Business visualizations
 └── .github/workflows/             # CI/CD automation
 ```

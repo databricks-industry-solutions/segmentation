@@ -75,7 +75,7 @@ resources:
       target: ${var.schema_name}
       libraries:
         - notebook:
-            path: ./notebooks/02_Segmentation_DLT.py
+            path: ./notebooks/02_Segmentation_Lakeflow.py
       configuration:
         "pipelines.trigger.interval": "manual"
         "catalog": "${var.catalog_name}"
