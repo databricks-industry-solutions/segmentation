@@ -1,62 +1,82 @@
 bundle:
-  name: customer-segmentation-modern
-
-include:
-  - resources/*.yml
+  name: customer-segmentation
 
 variables:
-  catalog:
+  catalog_name:
     description: Unity Catalog to use for this solution accelerator
-    default: solacc_uc
-  schema:
+    default: dev_customer_segmentation
+  schema_name:
     description: Schema to use for this solution accelerator  
-    default: segmentation_modern
-  volume_name:
-    description: Volume name for raw data storage
-    default: rawfiles
+    default: segmentation
 
 targets:
   dev:
     mode: development
     default: true
     workspace:
-      host: ${workspace.host}
-    variables:
-      catalog: ${var.catalog}_dev
-      schema: ${var.schema}_dev
+      root_path: /Shared/customer-segmentation
 
   prod:
     mode: production
     workspace:
-      host: ${workspace.host}
-      root_path: /Shared/customer-segmentation-modern
+      root_path: /Shared/customer-segmentation
     variables:
-      catalog: ${var.catalog}
-      schema: ${var.schema}
+      catalog_name: prod_customer_segmentation
 
 resources:
+  jobs:
+    data_setup_job:
+      name: "Data Setup - ${bundle.target}"
+      tasks:
+        - task_key: generate_synthetic_data
+          notebook_task:
+            notebook_path: ./notebooks/01_Data_Setup.py
+            base_parameters:
+              catalog_name: ${var.catalog_name}
+              schema_name: ${var.schema_name}
+
+    insights_job:
+      name: "Business Insights - ${bundle.target}"
+      tasks:
+        - task_key: create_business_insights
+          notebook_task:
+            notebook_path: ./notebooks/03_Business_Insights.py
+            base_parameters:
+              catalog_name: ${var.catalog_name}
+              schema_name: ${var.schema_name}
+
+    customer_segmentation_demo_install:
+      name: "Customer Segmentation Complete - ${bundle.target}"
+      tasks:
+        - task_key: setup_data
+          run_job_task:
+            job_id: ${resources.jobs.data_setup_job.id}
+        
+        - task_key: run_segmentation_pipeline
+          depends_on:
+            - task_key: setup_data
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.segmentation_pipeline.id}
+            full_refresh: true
+        
+        - task_key: generate_insights
+          depends_on:
+            - task_key: run_segmentation_pipeline
+          run_job_task:
+            job_id: ${resources.jobs.insights_job.id}
+
   pipelines:
-    customer_segmentation_pipeline:
-      name: "Customer Segmentation Pipeline - ${bundle.target}"
+    segmentation_pipeline:
+      name: "Segmentation Pipeline - ${bundle.target}"
       edition: advanced
       continuous: false
       serverless: true
-      catalog: ${var.catalog}
-      target: ${var.schema}
+      catalog: ${var.catalog_name}
+      target: ${var.schema_name}
       libraries:
         - notebook:
-            path: ./notebooks/01_Data_Generation.py
-        - notebook:
-            path: ./notebooks/02_Segmentation_Analysis.py
-        - notebook:
-            path: ./notebooks/03_Business_Insights.py
+            path: ./notebooks/02_Segmentation_DLT.py
       configuration:
         "pipelines.trigger.interval": "manual"
-
-  jobs:
-    customer_segmentation_job:
-      name: "Customer Segmentation Demo - ${bundle.target}"
-      tasks:
-        - task_key: run_pipeline
-          pipeline_task:
-            pipeline_id: ${resources.pipelines.customer_segmentation_pipeline.id}
+        "catalog": "${var.catalog_name}"
+        "schema": "${var.schema_name}"
