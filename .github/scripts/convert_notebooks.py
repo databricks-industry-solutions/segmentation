@@ -240,6 +240,7 @@ def convert_to_html(filepath):
     
     # Write HTML file
     output_path = f"site/{name_without_ext}.html"
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'w') as f:
         f.write(full_html)
     

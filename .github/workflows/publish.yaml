@@ -112,21 +112,21 @@ jobs:
               
               <div class="notebooks">
                   <div class="notebook-card">
-                      <h3>📊 Data Generation</h3>
-                      <p>Creates synthetic customer data with realistic e-commerce patterns. Generates 10K customers and 250K transactions for analysis.</p>
-                      <a href="01_Data_Generation.html" class="btn">View Notebook</a>
+                      <h3>📊 Data Setup</h3>
+                      <p>Creates synthetic customer data with realistic e-commerce patterns. Generates customer demographics, product catalog, and transaction history.</p>
+                      <a href="notebooks/01_Data_Setup.html" class="btn">View Notebook</a>
                   </div>
                   
                   <div class="notebook-card">
-                      <h3>🎯 Segmentation Analysis</h3>
-                      <p>Performs RFM analysis combined with behavioral clustering using K-means to identify 6 distinct customer segments.</p>
-                      <a href="02_Segmentation_Analysis.html" class="btn">View Notebook</a>
+                      <h3>🎯 Segmentation Lakeflow</h3>
+                      <p>Lakeflow Declarative Pipeline that performs RFM analysis and behavioral clustering to identify distinct customer segments.</p>
+                      <a href="notebooks/02_Segmentation_Lakeflow.html" class="btn">View Notebook</a>
                   </div>
                   
                   <div class="notebook-card">
                       <h3>📈 Business Insights</h3>
                       <p>Interactive Plotly visualizations showing segment performance, ROI projections, and actionable business recommendations.</p>
-                      <a href="03_Business_Insights.html" class="btn">View Notebook</a>
+                      <a href="notebooks/03_Business_Insights.html" class="btn">View Notebook</a>
                   </div>
               </div>
               
