@@ -31,6 +31,7 @@ print(f"Using catalog: {catalog_name}, schema: {schema_name}")
 print(f"Generating data for {NUM_CUSTOMERS:,} customers and ~{NUM_TRANSACTIONS:,} transactions")
 
 # Setup catalog and schema
+spark.sql(f"CREATE CATALOG IF NOT EXISTS {catalog_name}")
 spark.sql(f"CREATE SCHEMA IF NOT EXISTS {catalog_name}.{schema_name}")
 spark.sql(f"USE CATALOG {catalog_name}")
 spark.sql(f"USE SCHEMA {schema_name}")
