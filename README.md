@@ -57,7 +57,7 @@ customer-segmentation/
 ├── databricks.yml                 # Databricks Asset Bundle configuration
 ├── notebooks/
 │   ├── 01_Data_Setup.py          # Synthetic data generation
-│   ├── 02_Segmentation_DLT.py    # DLT pipeline for segmentation
+│   ├── 02_Segmentation_DLT.py    # Lakeflow Declarative Pipelines for segmentation
 │   └── 03_Business_Insights.py   # Business visualizations
 └── .github/workflows/             # CI/CD automation
 ```
@@ -71,7 +71,7 @@ The solution implements a **3-stage customer segmentation pipeline**:
 - Creates **transaction history** with seasonal patterns and behavioral variety
 - Stores data in **Unity Catalog managed tables**
 
-### Stage 2: Segmentation Analysis (DLT)
+### Stage 2: Segmentation Analysis (Lakeflow Declarative Pipelines)
 - **RFM Analysis**: Calculates Recency, Frequency, and Monetary scores
 - **Behavioral Clustering**: Groups customers by purchase patterns
 - **Segment Profiles**: Creates business-ready segment characteristics
@@ -112,7 +112,7 @@ The solution includes 5 essential visualizations:
 ## 🔧 Technical Architecture
 
 - **Unity Catalog**: Data governance and managed tables
-- **Lakeflow (DLT)**: Declarative data pipelines
+- **Lakeflow Declarative Pipelines**: Declarative data pipelines
 - **Serverless Compute**: Cost-effective processing
 - **Plotly Express**: Accessible, interactive visualizations
 - **Synthetic Data**: No external dependencies

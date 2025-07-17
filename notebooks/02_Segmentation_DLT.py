@@ -1,8 +1,8 @@
 # Databricks notebook source
 # MAGIC %md
-# MAGIC # Customer Segmentation DLT Pipeline
+# MAGIC # Customer Segmentation Lakeflow Declarative Pipeline
 # MAGIC 
-# MAGIC This DLT pipeline transforms raw customer data into segmented customer insights using SQL-based transformations.
+# MAGIC This Lakeflow Declarative Pipeline transforms raw customer data into segmented customer insights using SQL-based transformations.
 # MAGIC 
 # MAGIC **Pipeline Flow:**
 # MAGIC 1. Clean and prepare customer data
@@ -376,9 +376,9 @@ def segment_profiles():
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ## DLT Pipeline Complete ✅
+# MAGIC ## Lakeflow Declarative Pipeline Complete ✅
 # MAGIC 
-# MAGIC This pipeline transforms raw customer data into actionable customer segments:
+# MAGIC This Lakeflow Declarative Pipeline transforms raw customer data into actionable customer segments:
 # MAGIC 
 # MAGIC 1. **Clean Data Tables**: customers, products, transactions
 # MAGIC 2. **Customer Summary**: Aggregated customer metrics
