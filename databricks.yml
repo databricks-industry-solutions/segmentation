@@ -1,0 +1,62 @@
+bundle:
+  name: customer-segmentation-modern
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog:
+    description: Unity Catalog to use for this solution accelerator
+    default: solacc_uc
+  schema:
+    description: Schema to use for this solution accelerator  
+    default: segmentation_modern
+  volume_name:
+    description: Volume name for raw data storage
+    default: rawfiles
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: ${workspace.host}
+    variables:
+      catalog: ${var.catalog}_dev
+      schema: ${var.schema}_dev
+
+  prod:
+    mode: production
+    workspace:
+      host: ${workspace.host}
+      root_path: /Shared/customer-segmentation-modern
+    variables:
+      catalog: ${var.catalog}
+      schema: ${var.schema}
+
+resources:
+  pipelines:
+    customer_segmentation_pipeline:
+      name: "Customer Segmentation Pipeline - ${bundle.target}"
+      edition: advanced
+      continuous: false
+      serverless: true
+      catalog: ${var.catalog}
+      target: ${var.schema}
+      libraries:
+        - notebook:
+            path: ./notebooks/01_Data_Generation.py
+        - notebook:
+            path: ./notebooks/02_Segmentation_Analysis.py
+        - notebook:
+            path: ./notebooks/03_Business_Insights.py
+      configuration:
+        "pipelines.trigger.interval": "manual"
+
+  jobs:
+    customer_segmentation_job:
+      name: "Customer Segmentation Demo - ${bundle.target}"
+      tasks:
+        - task_key: run_pipeline
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.customer_segmentation_pipeline.id}
