@@ -58,6 +58,7 @@ def convert_to_html(filepath):
     """Convert Databricks .py notebook to HTML"""
     filename = os.path.basename(filepath)
     name_without_ext = os.path.splitext(filename)[0]
+    name_without_ext = "notebooks/" + name_without_ext
     
     cells = parse_databricks_notebook(filepath)
     html_content = []
