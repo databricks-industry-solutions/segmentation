@@ -11,10 +11,26 @@
 
 # COMMAND ----------
 
+%pip install databricks-sdk --upgrade
+%pip install faker
+
+# COMMAND ----------
+
+dbutils.library.restartPython()
+
+# COMMAND ----------
+
 # DBTITLE 1,Setup and Configuration
+from faker import Faker
 from pyspark.sql.types import *
 import random
+import numpy as np
+import pandas as pd
 from datetime import datetime, timedelta
+from databricks.sdk import WorkspaceClient
+from databricks.sdk.service import pipelines
+
+w = WorkspaceClient()
 
 # Get parameters from job
 catalog_name = dbutils.widgets.get("catalog_name") if "catalog_name" in dbutils.widgets.getAll() else "dev_customer_segmentation"
@@ -25,7 +41,9 @@ NUM_CUSTOMERS = 1000
 NUM_TRANSACTIONS = 5000
 
 # Set random seed for reproducible results
+fake = Faker()
 random.seed(42)
+np.random.seed(42)
 
 print(f"Using catalog: {catalog_name}, schema: {schema_name}")
 print(f"Generating data for {NUM_CUSTOMERS:,} customers and ~{NUM_TRANSACTIONS:,} transactions")
@@ -35,73 +53,126 @@ spark.sql(f"CREATE CATALOG IF NOT EXISTS {catalog_name}")
 spark.sql(f"CREATE SCHEMA IF NOT EXISTS {catalog_name}.{schema_name}")
 spark.sql(f"USE CATALOG {catalog_name}")
 spark.sql(f"USE SCHEMA {schema_name}")
+spark.sql("CREATE VOLUME IF NOT EXISTS customer_segmentation")
+
+volume_name = 'customer_segmentation'
+volume_path = f"/Volumes/{catalog_name}/{schema_name}/{volume_name}"
+
+# Create an empty folder in a volume.
+w.files.create_directory(f"{volume_path}/transactions")
 
 # COMMAND ----------
 
 # DBTITLE 1,Generate Customer Demographics
-def generate_customers():
-    """Generate simple customer demographic data"""
+# def generate_customers():
+#     """Generate simple customer demographic data"""
     
-    # Simple options
-    age_brackets = ['18-24', '25-34', '35-44', '45-54', '55-64', '65+']
+#     # Simple options
+#     age_brackets = ['18-24', '25-34', '35-44', '45-54', '55-64', '65+']
+#     income_brackets = ['Under 25K', '25-34K', '35-49K', '50-74K', '75-99K', '100K+']
+#     channels = ['Online', 'Mobile', 'Store']
+#     cities = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'Philadelphia', 'San Antonio', 'San Diego', 'Dallas', 'San Jose']
+#     states = ['NY', 'CA', 'IL', 'TX', 'AZ', 'PA', 'FL', 'OH', 'NC', 'GA']
+    
+#     customers_data = []
+    
+#     for customer_id in range(1, NUM_CUSTOMERS + 1):
+#         # Simple random selections
+#         age_bracket = random.choice(age_brackets)
+#         income_bracket = random.choice(income_brackets)
+#         household_size = random.randint(1, 5)
+#         city = random.choice(cities)
+#         state = random.choice(states)
+#         preferred_channel = random.choice(channels)
+        
+#         # Simple date generation
+#         days_ago = random.randint(180, 1095)  # 6 months to 3 years ago
+#         signup_date = (datetime.now() - timedelta(days=days_ago)).date()
+        
+#         customer = {
+#             'customer_id': customer_id,
+#             'age_bracket': age_bracket,
+#             'income_bracket': income_bracket,
+#             'household_size': household_size,
+#             'city': city,
+#             'state': state,
+#             'signup_date': signup_date,
+#             'preferred_channel': preferred_channel
+#         }
+#         customers_data.append(customer)
+    
+#     # Define explicit schema for customers
+#     customers_schema = StructType([
+#         StructField("customer_id", IntegerType(), True),
+#         StructField("age_bracket", StringType(), True),
+#         StructField("income_bracket", StringType(), True),
+#         StructField("household_size", IntegerType(), True),
+#         StructField("city", StringType(), True),
+#         StructField("state", StringType(), True),
+#         StructField("signup_date", DateType(), True),
+#         StructField("preferred_channel", StringType(), True)
+#     ])
+    
+#     # Convert to Spark DataFrame with explicit schema
+#     customers_df = spark.createDataFrame(customers_data, customers_schema)
+    
+#     # Write to table
+#     customers_df.write \
+#         .format('delta') \
+#         .mode('overwrite') \
+#         .option('overwriteSchema', 'true') \
+#         .saveAsTable('raw_customers')
+    
+#     print(f"Created raw_customers table with {customers_df.count():,} records")
+#     return customers_df
+
+# customers_df = generate_customers()
+
+# COMMAND ----------
+
+# DBTITLE 1,Generate Customer Demographics
+# 1. Customer Profile
+def generate_customer_profile(n):
+
     income_brackets = ['Under 25K', '25-34K', '35-49K', '50-74K', '75-99K', '100K+']
-    channels = ['Online', 'Mobile', 'Store']
     cities = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'Philadelphia', 'San Antonio', 'San Diego', 'Dallas', 'San Jose']
     states = ['NY', 'CA', 'IL', 'TX', 'AZ', 'PA', 'FL', 'OH', 'NC', 'GA']
+
+    data = []
     
-    customers_data = []
-    
-    for customer_id in range(1, NUM_CUSTOMERS + 1):
-        # Simple random selections
-        age_bracket = random.choice(age_brackets)
-        income_bracket = random.choice(income_brackets)
-        household_size = random.randint(1, 5)
-        city = random.choice(cities)
-        state = random.choice(states)
-        preferred_channel = random.choice(channels)
-        
-        # Simple date generation
-        days_ago = random.randint(180, 1095)  # 6 months to 3 years ago
-        signup_date = (datetime.now() - timedelta(days=days_ago)).date()
-        
-        customer = {
-            'customer_id': customer_id,
-            'age_bracket': age_bracket,
-            'income_bracket': income_bracket,
-            'household_size': household_size,
-            'city': city,
-            'state': state,
-            'signup_date': signup_date,
-            'preferred_channel': preferred_channel
-        }
-        customers_data.append(customer)
-    
-    # Define explicit schema for customers
-    customers_schema = StructType([
-        StructField("customer_id", IntegerType(), True),
-        StructField("age_bracket", StringType(), True),
-        StructField("income_bracket", StringType(), True),
-        StructField("household_size", IntegerType(), True),
-        StructField("city", StringType(), True),
-        StructField("state", StringType(), True),
-        StructField("signup_date", DateType(), True),
-        StructField("preferred_channel", StringType(), True)
-    ])
-    
-    # Convert to Spark DataFrame with explicit schema
-    customers_df = spark.createDataFrame(customers_data, customers_schema)
-    
+    for i in range(n):
+
+        location = fake.local_latlng(country_code='US', coords_only=True)
+        index = random.randint(0, len(cities) - 1)
+
+        data.append({
+            "CustomerID": f"C{str(i+1).zfill(4)}",
+            "FirstName": fake.first_name(),
+            "LastName": fake.last_name(),
+            "Age": random.randint(15, 65),
+            "Gender": (random.choices(['M', 'F', 'X'], weights=[40, 40, 10]))[0],
+            "IncomeBracket": (random.choices(income_brackets))[0],
+            "City": cities[index],
+            "State": states[index],
+            "Location": f"{float(location[0])} {float(location[1])}",
+            "SignupDate": fake.date_between(start_date='-5y', end_date='-1y')
+        })
+
+    customer_profiles_df = pd.DataFrame(data)
+    customer_profiles_sdf = spark.createDataFrame(customer_profiles_df)
+
     # Write to table
-    customers_df.write \
+    customer_profiles_sdf.write \
         .format('delta') \
         .mode('overwrite') \
         .option('overwriteSchema', 'true') \
-        .saveAsTable('raw_customers')
-    
-    print(f"Created raw_customers table with {customers_df.count():,} records")
-    return customers_df
+        .saveAsTable('raw_customer_profiles')
 
-customers_df = generate_customers()
+    #print(f"Created raw_customer_profiles table with {customer_profiles_df.count():,} records")
+    
+    return customer_profiles_df
+  
+customer_profiles_df = generate_customer_profile(NUM_CUSTOMERS)
 
 # COMMAND ----------
 
