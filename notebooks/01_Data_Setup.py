@@ -70,6 +70,7 @@ def generate_customer_profile(n):
     income_brackets = ['Under 25K', '25-34K', '35-49K', '50-74K', '75-99K', '100K+']
     cities = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'Philadelphia', 'San Antonio', 'San Diego', 'Dallas', 'San Jose']
     states = ['NY', 'CA', 'IL', 'TX', 'AZ', 'PA', 'FL', 'OH', 'NC', 'GA']
+    channels = ['Web', 'Mobile App', 'In-Store']
 
     data = []
     
@@ -88,7 +89,8 @@ def generate_customer_profile(n):
             "city": cities[index],
             "state": states[index],
             "location": f"{float(location[0])} {float(location[1])}",
-            "signup_date": fake.date_between(start_date='-5y', end_date='-1y')
+            "signup_date": fake.date_between(start_date='-5y', end_date='-1y'),
+            "preferred_channel": random.choice(channels),
         })
 
     customer_profiles_df = pd.DataFrame(data)
@@ -215,6 +217,7 @@ def generate_detailed_transactions(profiles, products):
               "transaction_date": txn_date,
               "product_id": product_id,
               "quantity": quantity,
+              "category": category,
               "per_unit_cost": per_unit_cost,
               "per_unit_msrp": per_unit_msrp,
               "total_cost": total_cost,
