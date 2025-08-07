@@ -8,7 +8,7 @@
 # MAGIC 1. Clean and prepare customer data
 # MAGIC 2. Calculate RFM metrics
 # MAGIC 3. Create customer segments using clustering logic
-# MAGIC 4. Generate segment profiles
+# MAGIC 4. Generate segment profil =es
 
 # COMMAND ----------
 
@@ -24,21 +24,29 @@ schema_name = spark.conf.get("schema") or "segmentation"
 
 # DBTITLE 1,Clean Customer Data
 @dlt.table(
-    name="customers",
+    name="customers_clean",
     comment="Clean customer demographic data"
 )
-def customers():
+@dlt.expect_or_drop("valid_customer_age", "age >= 18")
+def customers_clean():
     return spark.sql(f"""
         SELECT 
             customer_id,
-            age_bracket,
+            age,
+            CASE
+                WHEN age BETWEEN 18 and 24 THEN 'Young Adult'
+                WHEN age BETWEEN 25 and 34 THEN 'Emerging Professional'
+                WHEN age BETWEEN 35 AND 49 THEN 'Established Professionals'
+                WHEN age BETWEEN 50 and 65 THEN 'Mature Adults'
+            END AS age_bracket,
+            gender,
             income_bracket,
-            household_size,
             city,
             state,
+            location,
             signup_date,
             preferred_channel
-        FROM {catalog_name}.{schema_name}.raw_customers
+        FROM {catalog_name}.{schema_name}.raw_customer_profiles
         WHERE customer_id IS NOT NULL
     """)
 
@@ -76,20 +84,24 @@ def transactions():
         SELECT 
             transaction_id,
             customer_id,
-            product_id,
             transaction_date,
+            product_id,
             quantity,
-            unit_price,
+            category,
+            per_unit_cost,
+            per_unit_msrp,
+            total_cost,
+            pre_discount_amount,
             discount_amount,
             total_amount,
-            category,
+            channel,
             -- Calculate additional metrics
             DATEDIFF(CURRENT_DATE(), transaction_date) as days_since_transaction,
             YEAR(transaction_date) as transaction_year,
             MONTH(transaction_date) as transaction_month,
             DAYOFWEEK(transaction_date) as day_of_week,
             CASE WHEN DAYOFWEEK(transaction_date) IN (1,7) THEN 1 ELSE 0 END as is_weekend
-        FROM {catalog_name}.{schema_name}.raw_transactions
+        FROM STREAM read_files("/Volumes/{catalog_name}/{schema_name}/customer_segmentation/transactions/", format=>'csv')
         WHERE customer_id IS NOT NULL 
           AND product_id IS NOT NULL 
           AND total_amount >= 0
@@ -108,7 +120,6 @@ def customer_summary():
             c.customer_id,
             c.age_bracket,
             c.income_bracket,
-            c.household_size,
             c.city,
             c.state,
             c.signup_date,
@@ -118,8 +129,8 @@ def customer_summary():
             COUNT(t.transaction_id) as total_transactions,
             COUNT(DISTINCT t.product_id) as unique_products_purchased,
             COUNT(DISTINCT t.category) as unique_categories_purchased,
-            SUM(t.total_amount) as total_spent,
-            AVG(t.total_amount) as avg_transaction_value,
+            ROUND(SUM(t.total_amount), 2) as total_spent,
+            ROUND(AVG(t.total_amount), 2) as avg_transaction_value,
             SUM(t.quantity) as total_items_purchased,
             
             -- Recency metrics
@@ -127,25 +138,24 @@ def customer_summary():
             DATEDIFF(CURRENT_DATE(), MAX(t.transaction_date)) as days_since_last_purchase,
             
             -- Frequency metrics  
-            COUNT(t.transaction_id) / GREATEST(DATEDIFF(MAX(t.transaction_date), MIN(t.transaction_date)), 1) * 30 as avg_monthly_frequency,
+            ROUND(COUNT(t.transaction_id) / GREATEST(DATEDIFF(MAX(t.transaction_date), MIN(t.transaction_date)), 1) * 30, 2) as avg_monthly_frequency,
             
             -- Discount behavior
-            AVG(CASE WHEN t.discount_amount > 0 THEN 1 ELSE 0 END) as discount_usage_rate,
-            AVG(t.discount_amount) as avg_discount_amount,
+            ROUND(AVG(CASE WHEN t.discount_amount > 0 THEN 1 ELSE 0 END), 2) as discount_usage_rate,
+            ROUND(AVG(t.discount_amount), 2) as avg_discount_amount,
             
             -- Category preferences
-            SUM(CASE WHEN t.category = 'Electronics' THEN t.total_amount ELSE 0 END) / SUM(t.total_amount) as electronics_preference,
-            SUM(CASE WHEN t.category = 'Clothing' THEN t.total_amount ELSE 0 END) / SUM(t.total_amount) as clothing_preference,
-            SUM(CASE WHEN t.category = 'Food & Grocery' THEN t.total_amount ELSE 0 END) / SUM(t.total_amount) as food_preference,
-            SUM(CASE WHEN t.category = 'Home & Garden' THEN t.total_amount ELSE 0 END) / SUM(t.total_amount) as home_preference,
+            ROUND(SUM(CASE WHEN t.category = 'Electronics' THEN t.total_amount ELSE 0 END) / SUM(t.total_amount), 2) as electronics_preference,
+            ROUND(SUM(CASE WHEN t.category = 'Clothing' THEN t.total_amount ELSE 0 END) / SUM(t.total_amount), 2) as clothing_preference,
+            ROUND(SUM(CASE WHEN t.category = 'Food & Grocery' THEN t.total_amount ELSE 0 END) / SUM(t.total_amount), 2) as food_preference,
+            ROUND(SUM(CASE WHEN t.category = 'Home & Garden' THEN t.total_amount ELSE 0 END) / SUM(t.total_amount), 2) as home_preference,
             
             -- Shopping behavior
-            AVG(t.is_weekend) as weekend_shopping_rate
+            ROUND(AVG(t.is_weekend), 2) as weekend_shopping_rate
             
-        FROM live.customers c
+        FROM live.customers_clean c
         INNER JOIN live.transactions t ON c.customer_id = t.customer_id
-        GROUP BY c.customer_id, c.age_bracket, c.income_bracket, c.household_size, 
-                 c.city, c.state, c.signup_date, c.preferred_channel
+        GROUP BY c.customer_id, c.age_bracket, c.income_bracket, c.city, c.state, c.signup_date, c.preferred_channel
     """)
 
 # COMMAND ----------
@@ -237,17 +247,12 @@ def customer_segments():
                 
                 -- RFM Segment Classification
                 CASE 
-                    WHEN recency_score >= 3 AND frequency_score >= 3 AND monetary_score >= 3 THEN 'Champions'
-                    WHEN recency_score >= 2 AND frequency_score >= 3 AND monetary_score >= 3 THEN 'Loyal Customers'
-                    WHEN recency_score >= 3 AND frequency_score >= 2 AND monetary_score >= 2 THEN 'Potential Loyalists'  
+                    WHEN recency_score = 4 AND frequency_score = 4 AND monetary_score = 4 THEN 'Champions'                
                     WHEN recency_score >= 3 AND frequency_score = 1 AND monetary_score >= 1 THEN 'New Customers'
-                    WHEN recency_score >= 2 AND frequency_score >= 2 AND monetary_score >= 2 THEN 'Promising'
-                    WHEN recency_score >= 2 AND frequency_score >= 3 AND monetary_score <= 2 THEN 'Need Attention'
-                    WHEN recency_score >= 2 AND frequency_score >= 2 AND monetary_score <= 2 THEN 'About to Sleep'
-                    WHEN recency_score >= 2 AND frequency_score <= 2 THEN 'At Risk'
-                    WHEN recency_score = 1 AND frequency_score >= 3 THEN 'Cannot Lose Them'
-                    WHEN recency_score = 1 AND frequency_score >= 2 THEN 'Hibernating'
-                    ELSE 'Lost'
+                    WHEN recency_score >= 3 AND frequency_score >= 3 AND monetary_score >= 3 THEN 'Loyal'                    
+                    WHEN recency_score >= 2 AND frequency_score <= 2 AND monetary_score <= 2 THEN 'Regular'                    
+                    WHEN recency_score <= 2 AND frequency_score >= 2 AND monetary_score >= 2 THEN 'At Risk'               
+                    ELSE 'Churned'                    
                 END as rfm_segment,
                 
                 avg_transaction_value,
@@ -263,7 +268,6 @@ def customer_segments():
                 cs.customer_id,
                 cs.age_bracket,
                 cs.income_bracket,
-                cs.household_size,
                 cs.preferred_channel,
                 cs.weekend_shopping_rate,
                 cs.electronics_preference,
@@ -302,7 +306,6 @@ def customer_segments():
             customer_id,
             age_bracket,
             income_bracket,
-            household_size,
             preferred_channel,
             recency,
             frequency,
@@ -365,7 +368,6 @@ def segment_profiles():
             -- Demographics
             MODE() WITHIN GROUP (ORDER BY age_bracket) as most_common_age,
             MODE() WITHIN GROUP (ORDER BY income_bracket) as most_common_income,
-            ROUND(AVG(household_size), 1) as avg_household_size,
             MODE() WITHIN GROUP (ORDER BY preferred_channel) as preferred_channel
             
         FROM live.customer_segments
