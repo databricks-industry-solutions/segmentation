@@ -68,8 +68,8 @@ w.files.create_directory(f"{volume_path}/transactions")
 def generate_customer_profile(n):
 
     income_brackets = ['Under 25K', '25-34K', '35-49K', '50-74K', '75-99K', '100K+']
-    cities = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'Philadelphia', 'San Antonio', 'San Diego', 'Dallas', 'San Jose']
-    states = ['NY', 'CA', 'IL', 'TX', 'AZ', 'PA', 'FL', 'OH', 'NC', 'GA']
+    cities = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'Philadelphia', 'Miami', 'Columbus', 'Charlotte', 'Atlanta']
+    states = ['New York', 'California', 'Illinois', 'Texas', 'Arizona', 'Pennsylvania', 'Florida', 'Ohio', 'North Carolina', 'Georgia']
     channels = ['Web', 'Mobile App', 'In-Store']
 
     data = []
