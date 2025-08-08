@@ -120,6 +120,7 @@ def customer_summary():
             c.customer_id,
             c.age_bracket,
             c.income_bracket,
+            c.gender,
             c.city,
             c.state,
             c.signup_date,
@@ -155,7 +156,7 @@ def customer_summary():
             
         FROM live.customers_clean c
         INNER JOIN live.transactions t ON c.customer_id = t.customer_id
-        GROUP BY c.customer_id, c.age_bracket, c.income_bracket, c.city, c.state, c.signup_date, c.preferred_channel
+        GROUP BY c.customer_id, c.age_bracket, c.income_bracket, c.gender, c.city, c.state, c.signup_date, c.preferred_channel
     """)
 
 # COMMAND ----------
@@ -268,6 +269,7 @@ def customer_segments():
                 cs.customer_id,
                 cs.age_bracket,
                 cs.income_bracket,
+                cs.gender,
                 cs.preferred_channel,
                 cs.weekend_shopping_rate,
                 cs.electronics_preference,
@@ -306,6 +308,7 @@ def customer_segments():
             customer_id,
             age_bracket,
             income_bracket,
+            gender,
             preferred_channel,
             recency,
             frequency,
@@ -315,9 +318,8 @@ def customer_segments():
             monetary_score,
             rfm_score,
             rfm_segment,
+            rfm_segment as segment_name, 
             behavioral_segment,
-            -- Use behavioral segment as primary segment
-            behavioral_segment as segment_name,
             avg_transaction_value,
             unique_categories_purchased,
             discount_usage_rate,
