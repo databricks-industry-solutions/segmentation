@@ -1,0 +1,2242 @@
+{
+  "datasets": [
+    {
+      "name": "39728adf",
+      "displayName": "rfm_clustering",
+      "queryLines": [
+        "SELECT\n",
+        "    *\n",
+        "FROM customer_segments;"
+      ],
+      "catalog": "users",
+      "schema": "landan_george"
+    },
+    {
+      "name": "fe1d0538",
+      "displayName": "rfm_cluster_count",
+      "queryLines": [
+        "SELECT\n",
+        "    rfm_segment,\n",
+        "    count(*) as cluster_count\n",
+        "FROM users.landan_george.customer_segments\n",
+        "GROUP BY rfm_segment\n",
+        "UNION\n",
+        "SELECT 'Total', count(*) FROM users.landan_george.customer_segments\n",
+        "ORDER BY cluster_count DESC"
+      ]
+    },
+    {
+      "name": "210fbd58",
+      "displayName": "avg_rfm",
+      "queryLines": [
+        "SELECT\n",
+        "    rfm.rfm_cluster,\n",
+        "    ROUND(AVG(rfm.Frequency), 2) AS average_frequency,\n",
+        "    ROUND(AVG(rfm.Recency), 2) AS average_recency,\n",
+        "    ROUND(AVG(rfm.Monetary), 2) AS average_monetary\n",
+        "FROM users.landan_george.customer_engagement_gold c\n",
+        "JOIN users.landan_george.rfm_clustering rfm\n",
+        "ON c.CustomerID = rfm.CustomerID\n",
+        "GROUP BY rfm.rfm_cluster;"
+      ]
+    },
+    {
+      "name": "db74f545",
+      "displayName": "customer_summary",
+      "queryLines": [
+        "SELECT *, 'US' as country FROM users.landan_george.customer_summary"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "be4c2d0f",
+      "displayName": "RFM Clustering",
+      "layout": [
+        {
+          "widget": {
+            "name": "781e2b13",
+            "multilineTextboxSpec": {
+              "lines": [
+                "# Customer Segmentation\n",
+                "-----\n",
+                "Work in progress - Last updated 08/12"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 6,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "96b79f36",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "fe1d0538",
+                  "fields": [
+                    {
+                      "name": "rfm_segment",
+                      "expression": "`rfm_segment`"
+                    },
+                    {
+                      "name": "cluster_count",
+                      "expression": "`cluster_count`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "cluster_count",
+                  "rowNumber": 2,
+                  "style": {
+                    "color": {
+                      "themeColorType": "visualizationColors",
+                      "position": 6
+                    },
+                    "bold": true
+                  },
+                  "displayName": "cluster_count"
+                },
+                "target": {
+                  "fieldName": "rfm_segment",
+                  "rowNumber": 2,
+                  "displayName": "rfm_segment"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 2,
+            "width": 1,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "f29225cf",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "fe1d0538",
+                  "fields": [
+                    {
+                      "name": "rfm_segment",
+                      "expression": "`rfm_segment`"
+                    },
+                    {
+                      "name": "cluster_count",
+                      "expression": "`cluster_count`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "cluster_count",
+                  "rowNumber": 3,
+                  "style": {
+                    "color": {
+                      "themeColorType": "visualizationColors",
+                      "position": 3
+                    },
+                    "bold": true
+                  },
+                  "displayName": "cluster_count"
+                },
+                "target": {
+                  "fieldName": "rfm_segment",
+                  "rowNumber": 3,
+                  "displayName": "rfm_segment"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 1,
+            "y": 2,
+            "width": 1,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "cbf68628",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "fe1d0538",
+                  "fields": [
+                    {
+                      "name": "rfm_segment",
+                      "expression": "`rfm_segment`"
+                    },
+                    {
+                      "name": "cluster_count",
+                      "expression": "`cluster_count`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "cluster_count",
+                  "rowNumber": 4,
+                  "style": {
+                    "color": {
+                      "themeColorType": "visualizationColors",
+                      "position": 4
+                    },
+                    "bold": true
+                  },
+                  "displayName": "cluster_count"
+                },
+                "target": {
+                  "fieldName": "rfm_segment",
+                  "rowNumber": 4,
+                  "displayName": "rfm_segment"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 5,
+            "y": 2,
+            "width": 1,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "d63ad075",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "fe1d0538",
+                  "fields": [
+                    {
+                      "name": "rfm_segment",
+                      "expression": "`rfm_segment`"
+                    },
+                    {
+                      "name": "cluster_count",
+                      "expression": "`cluster_count`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "cluster_count",
+                  "rowNumber": 5,
+                  "style": {
+                    "color": {
+                      "themeColorType": "visualizationColors",
+                      "position": 1
+                    },
+                    "bold": true
+                  },
+                  "displayName": "cluster_count"
+                },
+                "target": {
+                  "fieldName": "rfm_segment",
+                  "rowNumber": 5,
+                  "displayName": "rfm_segment"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 2,
+            "y": 2,
+            "width": 1,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "4613c643",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "fe1d0538",
+                  "fields": [
+                    {
+                      "name": "rfm_segment",
+                      "expression": "`rfm_segment`"
+                    },
+                    {
+                      "name": "cluster_count",
+                      "expression": "`cluster_count`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "cluster_count",
+                  "rowNumber": 6,
+                  "style": {
+                    "color": {
+                      "themeColorType": "visualizationColors",
+                      "position": 2
+                    },
+                    "bold": true
+                  },
+                  "displayName": "cluster_count"
+                },
+                "target": {
+                  "fieldName": "rfm_segment",
+                  "rowNumber": 6,
+                  "displayName": "rfm_segment"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 1,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "7c2738e7",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "fe1d0538",
+                  "fields": [
+                    {
+                      "name": "rfm_segment",
+                      "expression": "`rfm_segment`"
+                    },
+                    {
+                      "name": "cluster_count",
+                      "expression": "`cluster_count`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "cluster_count",
+                  "rowNumber": 7,
+                  "style": {
+                    "bold": true,
+                    "color": {
+                      "themeColorType": "visualizationColors",
+                      "position": 7
+                    }
+                  },
+                  "displayName": "cluster_count"
+                },
+                "target": {
+                  "fieldName": "rfm_segment",
+                  "rowNumber": 7,
+                  "displayName": "rfm_segment"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 2,
+            "width": 1,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "7b97e04b",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "39728adf",
+                  "fields": [
+                    {
+                      "name": "count(*)",
+                      "expression": "COUNT(`*`)"
+                    },
+                    {
+                      "name": "rfm_segment",
+                      "expression": "`rfm_segment`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "pie",
+              "encodings": {
+                "angle": {
+                  "fieldName": "count(*)",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "Count of Records"
+                },
+                "color": {
+                  "fieldName": "rfm_segment",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "At Risk",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 6
+                        }
+                      },
+                      {
+                        "value": "Champions",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 2
+                        }
+                      },
+                      {
+                        "value": "Loyal",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 3
+                        }
+                      },
+                      {
+                        "value": "Churned",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 4
+                        }
+                      },
+                      {
+                        "value": "Regular",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 1
+                        }
+                      },
+                      {
+                        "value": "New Customers",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 7
+                        }
+                      }
+                    ]
+                  },
+                  "displayName": "rfm_segment"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 5,
+            "width": 3,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "ac2bb633",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "39728adf",
+                  "fields": [
+                    {
+                      "name": "rfm_segment",
+                      "expression": "`rfm_segment`"
+                    },
+                    {
+                      "name": "count(*)",
+                      "expression": "COUNT(`*`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "rfm_segment",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "custom-order",
+                      "orderedValues": [
+                        "Champions",
+                        "Loyal",
+                        "Regular",
+                        "New Customers",
+                        "At Risk",
+                        "Churned"
+                      ]
+                    }
+                  },
+                  "displayName": "rfm_segment"
+                },
+                "y": {
+                  "fieldName": "count(*)",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "Count of Records"
+                },
+                "color": {
+                  "fieldName": "rfm_segment",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "At Risk",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 6
+                        }
+                      },
+                      {
+                        "value": "Churned",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 4
+                        }
+                      },
+                      {
+                        "value": "Loyal",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 3
+                        }
+                      },
+                      {
+                        "value": "New Customers",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 7
+                        }
+                      },
+                      {
+                        "value": "Regular",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 1
+                        }
+                      }
+                    ],
+                    "sort": {
+                      "by": "custom-order",
+                      "orderedValues": [
+                        "Champions",
+                        "Loyal",
+                        "Regular",
+                        "New Customers",
+                        "At Risk",
+                        "Churned"
+                      ]
+                    }
+                  },
+                  "displayName": "rfm_segment"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 5,
+            "width": 3,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "490f9bb5",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "39728adf",
+                  "fields": [
+                    {
+                      "name": "rfm_segment",
+                      "expression": "`rfm_segment`"
+                    },
+                    {
+                      "name": "customer_id",
+                      "expression": "`customer_id`"
+                    },
+                    {
+                      "name": "monetary",
+                      "expression": "`monetary`"
+                    },
+                    {
+                      "name": "recency",
+                      "expression": "`recency`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "scatter",
+              "encodings": {
+                "x": {
+                  "fieldName": "monetary",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "monetary"
+                },
+                "y": {
+                  "fieldName": "recency",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "recency"
+                },
+                "color": {
+                  "fieldName": "rfm_segment",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "At Risk",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 6
+                        }
+                      },
+                      {
+                        "value": "Churned",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 4
+                        }
+                      },
+                      {
+                        "value": "Loyal",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 3
+                        }
+                      },
+                      {
+                        "value": "New Customers",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 7
+                        }
+                      },
+                      {
+                        "value": "Regular",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 1
+                        }
+                      }
+                    ]
+                  },
+                  "displayName": "rfm_segment"
+                },
+                "extra": [
+                  {
+                    "fieldName": "customer_id",
+                    "displayName": "customer_id"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 11,
+            "width": 3,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "0473b4fb",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "39728adf",
+                  "fields": [
+                    {
+                      "name": "rfm_segment",
+                      "expression": "`rfm_segment`"
+                    },
+                    {
+                      "name": "min(recency)",
+                      "expression": "MIN(`recency`)"
+                    },
+                    {
+                      "name": "q1(recency)",
+                      "expression": "PERCENTILE(`recency`, 0.25)"
+                    },
+                    {
+                      "name": "median(recency)",
+                      "expression": "MEDIAN(`recency`)"
+                    },
+                    {
+                      "name": "q3(recency)",
+                      "expression": "PERCENTILE(`recency`, 0.75)"
+                    },
+                    {
+                      "name": "max(recency)",
+                      "expression": "MAX(`recency`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "box",
+              "encodings": {
+                "x": {
+                  "fieldName": "rfm_segment",
+                  "scale": {
+                    "type": "categorical"
+                  },
+                  "displayName": "rfm_segment"
+                },
+                "y": {
+                  "whiskerStart": {
+                    "fieldName": "min(recency)",
+                    "displayName": "Minimum recency"
+                  },
+                  "boxStart": {
+                    "fieldName": "q1(recency)",
+                    "displayName": "First Quartile of recency"
+                  },
+                  "boxMid": {
+                    "fieldName": "median(recency)",
+                    "displayName": "Median of recency"
+                  },
+                  "boxEnd": {
+                    "fieldName": "q3(recency)",
+                    "displayName": "Third Quartile of recency"
+                  },
+                  "whiskerEnd": {
+                    "fieldName": "max(recency)",
+                    "displayName": "Maximum recency"
+                  },
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 23,
+            "width": 2,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "7a7526a5",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "39728adf",
+                  "fields": [
+                    {
+                      "name": "rfm_segment",
+                      "expression": "`rfm_segment`"
+                    },
+                    {
+                      "name": "min(monetary)",
+                      "expression": "MIN(`monetary`)"
+                    },
+                    {
+                      "name": "q1(monetary)",
+                      "expression": "PERCENTILE(`monetary`, 0.25)"
+                    },
+                    {
+                      "name": "median(monetary)",
+                      "expression": "MEDIAN(`monetary`)"
+                    },
+                    {
+                      "name": "q3(monetary)",
+                      "expression": "PERCENTILE(`monetary`, 0.75)"
+                    },
+                    {
+                      "name": "max(monetary)",
+                      "expression": "MAX(`monetary`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "box",
+              "encodings": {
+                "x": {
+                  "fieldName": "rfm_segment",
+                  "scale": {
+                    "type": "categorical"
+                  },
+                  "displayName": "rfm_segment"
+                },
+                "y": {
+                  "whiskerStart": {
+                    "fieldName": "min(monetary)",
+                    "displayName": "Minimum monetary"
+                  },
+                  "boxStart": {
+                    "fieldName": "q1(monetary)",
+                    "displayName": "First Quartile of monetary"
+                  },
+                  "boxMid": {
+                    "fieldName": "median(monetary)",
+                    "displayName": "Median of monetary"
+                  },
+                  "boxEnd": {
+                    "fieldName": "q3(monetary)",
+                    "displayName": "Third Quartile of monetary"
+                  },
+                  "whiskerEnd": {
+                    "fieldName": "max(monetary)",
+                    "displayName": "Maximum monetary"
+                  },
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 2,
+            "y": 23,
+            "width": 2,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "32f75a47",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "39728adf",
+                  "fields": [
+                    {
+                      "name": "rfm_segment",
+                      "expression": "`rfm_segment`"
+                    },
+                    {
+                      "name": "min(frequency)",
+                      "expression": "MIN(`frequency`)"
+                    },
+                    {
+                      "name": "q1(frequency)",
+                      "expression": "PERCENTILE(`frequency`, 0.25)"
+                    },
+                    {
+                      "name": "median(frequency)",
+                      "expression": "MEDIAN(`frequency`)"
+                    },
+                    {
+                      "name": "q3(frequency)",
+                      "expression": "PERCENTILE(`frequency`, 0.75)"
+                    },
+                    {
+                      "name": "max(frequency)",
+                      "expression": "MAX(`frequency`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "box",
+              "encodings": {
+                "x": {
+                  "fieldName": "rfm_segment",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "natural-order"
+                    }
+                  },
+                  "displayName": "rfm_segment"
+                },
+                "y": {
+                  "whiskerStart": {
+                    "fieldName": "min(frequency)",
+                    "displayName": "Minimum frequency"
+                  },
+                  "boxStart": {
+                    "fieldName": "q1(frequency)",
+                    "displayName": "First Quartile of frequency"
+                  },
+                  "boxMid": {
+                    "fieldName": "median(frequency)",
+                    "displayName": "Median of frequency"
+                  },
+                  "boxEnd": {
+                    "fieldName": "q3(frequency)",
+                    "displayName": "Third Quartile of frequency"
+                  },
+                  "whiskerEnd": {
+                    "fieldName": "max(frequency)",
+                    "displayName": "Maximum frequency"
+                  },
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 23,
+            "width": 2,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "55ffe6b6",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "39728adf",
+                  "fields": [
+                    {
+                      "name": "customer_id",
+                      "expression": "`customer_id`"
+                    },
+                    {
+                      "name": "age_bracket",
+                      "expression": "`age_bracket`"
+                    },
+                    {
+                      "name": "income_bracket",
+                      "expression": "`income_bracket`"
+                    },
+                    {
+                      "name": "preferred_channel",
+                      "expression": "`preferred_channel`"
+                    },
+                    {
+                      "name": "recency",
+                      "expression": "`recency`"
+                    },
+                    {
+                      "name": "frequency",
+                      "expression": "`frequency`"
+                    },
+                    {
+                      "name": "monetary",
+                      "expression": "`monetary`"
+                    },
+                    {
+                      "name": "recency_score",
+                      "expression": "`recency_score`"
+                    },
+                    {
+                      "name": "frequency_score",
+                      "expression": "`frequency_score`"
+                    },
+                    {
+                      "name": "monetary_score",
+                      "expression": "`monetary_score`"
+                    },
+                    {
+                      "name": "rfm_score",
+                      "expression": "`rfm_score`"
+                    },
+                    {
+                      "name": "rfm_segment",
+                      "expression": "`rfm_segment`"
+                    },
+                    {
+                      "name": "behavioral_segment",
+                      "expression": "`behavioral_segment`"
+                    },
+                    {
+                      "name": "segment_name",
+                      "expression": "`segment_name`"
+                    },
+                    {
+                      "name": "avg_transaction_value",
+                      "expression": "`avg_transaction_value`"
+                    },
+                    {
+                      "name": "unique_categories_purchased",
+                      "expression": "`unique_categories_purchased`"
+                    },
+                    {
+                      "name": "discount_usage_rate",
+                      "expression": "`discount_usage_rate`"
+                    },
+                    {
+                      "name": "avg_monthly_frequency",
+                      "expression": "`avg_monthly_frequency`"
+                    },
+                    {
+                      "name": "weekend_shopping_rate",
+                      "expression": "`weekend_shopping_rate`"
+                    },
+                    {
+                      "name": "electronics_preference",
+                      "expression": "`electronics_preference`"
+                    },
+                    {
+                      "name": "clothing_preference",
+                      "expression": "`clothing_preference`"
+                    },
+                    {
+                      "name": "food_preference",
+                      "expression": "`food_preference`"
+                    },
+                    {
+                      "name": "home_preference",
+                      "expression": "`home_preference`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 1,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "customer_id",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "string",
+                    "displayAs": "string",
+                    "visible": true,
+                    "order": 100000,
+                    "title": "customer_id",
+                    "allowSearch": true,
+                    "alignContent": "left",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false,
+                    "displayName": "customer_id"
+                  },
+                  {
+                    "fieldName": "age_bracket",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "string",
+                    "displayAs": "string",
+                    "visible": true,
+                    "order": 100001,
+                    "title": "age_bracket",
+                    "allowSearch": false,
+                    "alignContent": "left",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false,
+                    "displayName": "age_bracket"
+                  },
+                  {
+                    "fieldName": "income_bracket",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "string",
+                    "displayAs": "string",
+                    "visible": true,
+                    "order": 100002,
+                    "title": "income_bracket",
+                    "allowSearch": false,
+                    "alignContent": "left",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false,
+                    "displayName": "income_bracket"
+                  },
+                  {
+                    "fieldName": "preferred_channel",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "string",
+                    "displayAs": "string",
+                    "visible": true,
+                    "order": 100003,
+                    "title": "preferred_channel",
+                    "allowSearch": false,
+                    "alignContent": "left",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false,
+                    "displayName": "preferred_channel"
+                  },
+                  {
+                    "fieldName": "recency",
+                    "numberFormat": "0",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "integer",
+                    "displayAs": "number",
+                    "visible": true,
+                    "order": 100004,
+                    "title": "recency",
+                    "allowSearch": false,
+                    "alignContent": "right",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false,
+                    "displayName": "recency"
+                  },
+                  {
+                    "fieldName": "frequency",
+                    "numberFormat": "0",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "integer",
+                    "displayAs": "number",
+                    "visible": true,
+                    "order": 100005,
+                    "title": "frequency",
+                    "allowSearch": false,
+                    "alignContent": "right",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false,
+                    "displayName": "frequency"
+                  },
+                  {
+                    "fieldName": "monetary",
+                    "numberFormat": "0.00",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "float",
+                    "displayAs": "number",
+                    "visible": true,
+                    "order": 100006,
+                    "title": "monetary",
+                    "allowSearch": false,
+                    "alignContent": "right",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false,
+                    "displayName": "monetary"
+                  },
+                  {
+                    "fieldName": "recency_score",
+                    "numberFormat": "0",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "integer",
+                    "displayAs": "number",
+                    "visible": true,
+                    "order": 100007,
+                    "title": "recency_score",
+                    "allowSearch": false,
+                    "alignContent": "right",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false,
+                    "displayName": "recency_score"
+                  },
+                  {
+                    "fieldName": "frequency_score",
+                    "numberFormat": "0",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "integer",
+                    "displayAs": "number",
+                    "visible": true,
+                    "order": 100008,
+                    "title": "frequency_score",
+                    "allowSearch": false,
+                    "alignContent": "right",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false,
+                    "displayName": "frequency_score"
+                  },
+                  {
+                    "fieldName": "monetary_score",
+                    "numberFormat": "0",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "integer",
+                    "displayAs": "number",
+                    "visible": true,
+                    "order": 100009,
+                    "title": "monetary_score",
+                    "allowSearch": false,
+                    "alignContent": "right",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false,
+                    "displayName": "monetary_score"
+                  },
+                  {
+                    "fieldName": "rfm_score",
+                    "numberFormat": "0.00",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "decimal",
+                    "displayAs": "number",
+                    "visible": true,
+                    "order": 100010,
+                    "title": "rfm_score",
+                    "allowSearch": false,
+                    "alignContent": "right",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false,
+                    "displayName": "rfm_score"
+                  },
+                  {
+                    "fieldName": "rfm_segment",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "string",
+                    "displayAs": "string",
+                    "visible": true,
+                    "order": 100011,
+                    "title": "rfm_segment",
+                    "allowSearch": false,
+                    "alignContent": "left",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false,
+                    "displayName": "rfm_segment"
+                  },
+                  {
+                    "fieldName": "behavioral_segment",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "string",
+                    "displayAs": "string",
+                    "visible": true,
+                    "order": 100012,
+                    "title": "behavioral_segment",
+                    "allowSearch": false,
+                    "alignContent": "left",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false,
+                    "displayName": "behavioral_segment"
+                  },
+                  {
+                    "fieldName": "segment_name",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "string",
+                    "displayAs": "string",
+                    "visible": true,
+                    "order": 100013,
+                    "title": "segment_name",
+                    "allowSearch": false,
+                    "alignContent": "left",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false,
+                    "displayName": "segment_name"
+                  },
+                  {
+                    "fieldName": "avg_transaction_value",
+                    "numberFormat": "0.00",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "float",
+                    "displayAs": "number",
+                    "visible": true,
+                    "order": 100014,
+                    "title": "avg_transaction_value",
+                    "allowSearch": false,
+                    "alignContent": "right",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false,
+                    "displayName": "avg_transaction_value"
+                  },
+                  {
+                    "fieldName": "unique_categories_purchased",
+                    "numberFormat": "0",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "integer",
+                    "displayAs": "number",
+                    "visible": true,
+                    "order": 100015,
+                    "title": "unique_categories_purchased",
+                    "allowSearch": false,
+                    "alignContent": "right",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false,
+                    "displayName": "unique_categories_purchased"
+                  },
+                  {
+                    "fieldName": "discount_usage_rate",
+                    "numberFormat": "0.00",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "float",
+                    "displayAs": "number",
+                    "visible": true,
+                    "order": 100016,
+                    "title": "discount_usage_rate",
+                    "allowSearch": false,
+                    "alignContent": "right",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false,
+                    "displayName": "discount_usage_rate"
+                  },
+                  {
+                    "fieldName": "avg_monthly_frequency",
+                    "numberFormat": "0.00",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "float",
+                    "displayAs": "number",
+                    "visible": true,
+                    "order": 100017,
+                    "title": "avg_monthly_frequency",
+                    "allowSearch": false,
+                    "alignContent": "right",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false,
+                    "displayName": "avg_monthly_frequency"
+                  },
+                  {
+                    "fieldName": "weekend_shopping_rate",
+                    "numberFormat": "0.00",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "float",
+                    "displayAs": "number",
+                    "visible": true,
+                    "order": 100018,
+                    "title": "weekend_shopping_rate",
+                    "allowSearch": false,
+                    "alignContent": "right",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false,
+                    "displayName": "weekend_shopping_rate"
+                  },
+                  {
+                    "fieldName": "electronics_preference",
+                    "numberFormat": "0.00",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "float",
+                    "displayAs": "number",
+                    "visible": true,
+                    "order": 100019,
+                    "title": "electronics_preference",
+                    "allowSearch": false,
+                    "alignContent": "right",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false,
+                    "displayName": "electronics_preference"
+                  },
+                  {
+                    "fieldName": "clothing_preference",
+                    "numberFormat": "0.00",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "float",
+                    "displayAs": "number",
+                    "visible": true,
+                    "order": 100020,
+                    "title": "clothing_preference",
+                    "allowSearch": false,
+                    "alignContent": "right",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false,
+                    "displayName": "clothing_preference"
+                  },
+                  {
+                    "fieldName": "food_preference",
+                    "numberFormat": "0.00",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "float",
+                    "displayAs": "number",
+                    "visible": true,
+                    "order": 100021,
+                    "title": "food_preference",
+                    "allowSearch": false,
+                    "alignContent": "right",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false,
+                    "displayName": "food_preference"
+                  },
+                  {
+                    "fieldName": "home_preference",
+                    "numberFormat": "0.00",
+                    "booleanValues": [
+                      "false",
+                      "true"
+                    ],
+                    "imageUrlTemplate": "{{ @ }}",
+                    "imageTitleTemplate": "{{ @ }}",
+                    "imageWidth": "",
+                    "imageHeight": "",
+                    "linkUrlTemplate": "{{ @ }}",
+                    "linkTextTemplate": "{{ @ }}",
+                    "linkTitleTemplate": "{{ @ }}",
+                    "linkOpenInNewTab": true,
+                    "type": "float",
+                    "displayAs": "number",
+                    "visible": true,
+                    "order": 100022,
+                    "title": "home_preference",
+                    "allowSearch": false,
+                    "alignContent": "right",
+                    "allowHTML": false,
+                    "highlightLinks": false,
+                    "useMonospaceFont": false,
+                    "preserveWhitespace": false,
+                    "displayName": "home_preference"
+                  }
+                ]
+              },
+              "invisibleColumns": [
+                {
+                  "booleanValues": [
+                    "false",
+                    "true"
+                  ],
+                  "imageUrlTemplate": "{{ @ }}",
+                  "imageTitleTemplate": "{{ @ }}",
+                  "imageWidth": "",
+                  "imageHeight": "",
+                  "linkUrlTemplate": "{{ @ }}",
+                  "linkTextTemplate": "{{ @ }}",
+                  "linkTitleTemplate": "{{ @ }}",
+                  "linkOpenInNewTab": true,
+                  "name": "gender",
+                  "type": "string",
+                  "displayAs": "string",
+                  "order": 100003,
+                  "title": "gender",
+                  "allowSearch": false,
+                  "alignContent": "left",
+                  "allowHTML": false,
+                  "highlightLinks": false,
+                  "useMonospaceFont": false,
+                  "preserveWhitespace": false
+                }
+              ],
+              "allowHTMLByDefault": false,
+              "itemsPerPage": 25,
+              "paginationSize": "default",
+              "condensed": true,
+              "withRowNumber": true
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 17,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "a2fac18f",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Demographics Clustering and Breakdown"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 29,
+            "width": 6,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "979ac1f3",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "39728adf",
+                  "fields": [
+                    {
+                      "name": "rfm_segment",
+                      "expression": "`rfm_segment`"
+                    },
+                    {
+                      "name": "age_bracket",
+                      "expression": "`age_bracket`"
+                    },
+                    {
+                      "name": "count(*)",
+                      "expression": "COUNT(`*`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "histogram",
+              "encodings": {
+                "x": {
+                  "fieldName": "age_bracket",
+                  "scale": {
+                    "type": "categorical"
+                  },
+                  "axis": {
+                    "hideLabels": false,
+                    "labelAngle": 90
+                  },
+                  "displayName": "age_bracket"
+                },
+                "y": {
+                  "fieldName": "count(*)",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "Count of Records"
+                },
+                "color": {
+                  "fieldName": "rfm_segment",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "At Risk",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 6
+                        }
+                      },
+                      {
+                        "value": "Churned",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 4
+                        }
+                      },
+                      {
+                        "value": "Loyal",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 3
+                        }
+                      },
+                      {
+                        "value": "New Customers",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 7
+                        }
+                      },
+                      {
+                        "value": "Regular",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 1
+                        }
+                      }
+                    ]
+                  },
+                  "displayName": "rfm_segment"
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Count of Customers by Age Bracket"
+              },
+              "mark": {
+                "layout": "stack"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 31,
+            "width": 2,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "a9fee1ef",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "39728adf",
+                  "fields": [
+                    {
+                      "name": "rfm_segment",
+                      "expression": "`rfm_segment`"
+                    },
+                    {
+                      "name": "gender",
+                      "expression": "`gender`"
+                    },
+                    {
+                      "name": "count(*)",
+                      "expression": "COUNT(`*`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "gender",
+                  "scale": {
+                    "type": "categorical"
+                  },
+                  "displayName": "gender"
+                },
+                "y": {
+                  "fieldName": "count(*)",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "Count of Records"
+                },
+                "color": {
+                  "fieldName": "rfm_segment",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "At Risk",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 6
+                        }
+                      },
+                      {
+                        "value": "Champions",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 2
+                        }
+                      },
+                      {
+                        "value": "Churned",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 4
+                        }
+                      },
+                      {
+                        "value": "Loyal",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 3
+                        }
+                      },
+                      {
+                        "value": "New Customers",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 7
+                        }
+                      },
+                      {
+                        "value": "Regular",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 1
+                        }
+                      }
+                    ]
+                  },
+                  "displayName": "rfm_segment"
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Count of Customers by Gender"
+              }
+            }
+          },
+          "position": {
+            "x": 2,
+            "y": 31,
+            "width": 2,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "dfb86721",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "db74f545",
+                  "fields": [
+                    {
+                      "name": "count(*)",
+                      "expression": "COUNT(`*`)"
+                    },
+                    {
+                      "name": "country",
+                      "expression": "`country`"
+                    },
+                    {
+                      "name": "state",
+                      "expression": "`state`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 1,
+              "widgetType": "choropleth-map",
+              "encodings": {
+                "color": {
+                  "fieldName": "count(*)",
+                  "scale": {
+                    "type": "quantitative",
+                    "colorRamp": {
+                      "mode": "scheme",
+                      "scheme": "blues"
+                    }
+                  },
+                  "displayName": "Count of Records"
+                },
+                "region": {
+                  "regionType": "mapbox-v4-admin",
+                  "admin0": {
+                    "fieldName": "country",
+                    "type": "field",
+                    "geographicRole": "admin0-unit-code",
+                    "displayName": "country"
+                  },
+                  "admin1": {
+                    "fieldName": "state",
+                    "type": "field",
+                    "geographicRole": "admin1-name",
+                    "displayName": "state"
+                  }
+                }
+              },
+              "mark": {
+                "opacity": 1
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 39,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "15a40c46",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "39728adf",
+                  "fields": [
+                    {
+                      "name": "sum(monetary_score)",
+                      "expression": "SUM(`monetary_score`)"
+                    },
+                    {
+                      "name": "recency_score",
+                      "expression": "`recency_score`"
+                    },
+                    {
+                      "name": "frequency_score",
+                      "expression": "`frequency_score`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "heatmap",
+              "encodings": {
+                "x": {
+                  "fieldName": "recency_score",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "recency_score"
+                },
+                "y": {
+                  "fieldName": "frequency_score",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "frequency_score"
+                },
+                "color": {
+                  "fieldName": "sum(monetary_score)",
+                  "scale": {
+                    "type": "quantitative",
+                    "colorRamp": {
+                      "mode": "scheme",
+                      "scheme": "magma"
+                    }
+                  },
+                  "displayName": "Sum of monetary_score"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 11,
+            "width": 3,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "4f6eab78",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "39728adf",
+                  "fields": [
+                    {
+                      "name": "rfm_segment",
+                      "expression": "`rfm_segment`"
+                    },
+                    {
+                      "name": "income_bracket",
+                      "expression": "`income_bracket`"
+                    },
+                    {
+                      "name": "count(*)",
+                      "expression": "COUNT(`*`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "income_bracket",
+                  "scale": {
+                    "type": "categorical"
+                  },
+                  "displayName": "income_bracket"
+                },
+                "y": {
+                  "fieldName": "count(*)",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "Count of Records"
+                },
+                "color": {
+                  "fieldName": "rfm_segment",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "At Risk",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 6
+                        }
+                      },
+                      {
+                        "value": "Champions",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 2
+                        }
+                      },
+                      {
+                        "value": "Churned",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 4
+                        }
+                      },
+                      {
+                        "value": "Loyal",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 3
+                        }
+                      },
+                      {
+                        "value": "New Customers",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 7
+                        }
+                      },
+                      {
+                        "value": "Regular",
+                        "color": {
+                          "themeColorType": "visualizationColors",
+                          "position": 1
+                        }
+                      }
+                    ]
+                  },
+                  "displayName": "rfm_segment"
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Count of Customers by Gender"
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 31,
+            "width": 2,
+            "height": 8
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    }
+  }
+}

@@ -23,6 +23,15 @@ targets:
     variables:
       catalog_name: prod_customer_segmentation
 
+  lg:
+    mode: development
+    default: false
+    workspace:
+      host: https://e2-demo-field-eng.cloud.databricks.com/
+    variables:
+      catalog_name: users
+      schema_name: landan_george
+
 resources:
   jobs:
     data_setup_job:
@@ -45,6 +54,16 @@ resources:
               catalog_name: ${var.catalog_name}
               schema_name: ${var.schema_name}
 
+    segmentation_mlflow_job:
+      name: "Unsupervised Customer Segmentation - ${bundle.target}"
+      tasks:
+        - task_key: unsupervised_customer_segmentation
+          notebook_task:
+            notebook_path: ./notebooks/02b_Segmentation_MLflow.py
+            base_parameters:
+              catalog_name: ${var.catalog_name}
+              schema_name: ${var.schema_name}              
+
     customer_segmentation_demo_install:
       name: "Customer Segmentation Complete - ${bundle.target}"
       tasks:
@@ -58,6 +77,12 @@ resources:
           pipeline_task:
             pipeline_id: ${resources.pipelines.segmentation_pipeline.id}
             full_refresh: true
+          
+        - task_key: unsupervised_segmentation
+          depends_on:
+            - task_key: run_segmentation_pipeline
+          run_job_task:
+            job_id: ${resources.jobs.segmentation_mlflow_job.id}          
         
         - task_key: generate_insights
           depends_on:
@@ -75,8 +100,14 @@ resources:
       target: ${var.schema_name}
       libraries:
         - notebook:
-            path: ./notebooks/02_Segmentation_Lakeflow.py
+            path: ./notebooks/02a_Segmentation_Lakeflow.py
       configuration:
         "pipelines.trigger.interval": "manual"
         "catalog": "${var.catalog_name}"
         "schema": "${var.schema_name}"
+
+  dashboards:
+      customer_segmentation_dashboard:
+        display_name: 'Customer Segmentation Dashboard'
+        file_path: 'src/customer_segmentation.lvdash.json'
+        warehouse_id: #TODO
