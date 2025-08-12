@@ -23,15 +23,6 @@ targets:
     variables:
       catalog_name: prod_customer_segmentation
 
-  lg:
-    mode: development
-    default: false
-    workspace:
-      host: https://e2-demo-field-eng.cloud.databricks.com/
-    variables:
-      catalog_name: users
-      schema_name: landan_george
-
 resources:
   jobs:
     data_setup_job:
