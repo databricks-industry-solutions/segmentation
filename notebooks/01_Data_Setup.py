@@ -2,7 +2,7 @@
 # MAGIC %md
 # MAGIC # Customer Segmentation Data Setup
 # MAGIC 
-# MAGIC This notebook generates synthetic customer data for the segmentation demo. It creates raw tables that will be processed by the DLT pipeline.
+# MAGIC This notebook generates synthetic customer data for the segmentation demo. It creates raw tables that will be processed by the Lakeflow Declarative Pipeline (LDP).
 # MAGIC 
 # MAGIC **Output Tables:**
 # MAGIC - `raw_customers`: Customer demographic data
@@ -249,7 +249,7 @@ print(f"✅ raw_customers: {customers_count:,} records")
 print(f"✅ raw_products: {products_count:,} records") 
 print(f"✅ raw_transactions: {transactions_count:,} records")
 print()
-print("Raw data is ready for DLT pipeline processing!")
+print("Raw data is ready for LDP pipeline processing!")
 
 # COMMAND ----------
 
@@ -262,4 +262,4 @@ print("Raw data is ready for DLT pipeline processing!")
 # MAGIC - **raw_products**: Product catalog with pricing and categories
 # MAGIC - **raw_transactions**: Realistic transaction history with purchasing patterns
 # MAGIC 
-# MAGIC The DLT pipeline can now process this raw data to create customer segments.
+# MAGIC The LDP pipeline can now process this raw data to create customer segments.
