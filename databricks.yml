@@ -8,6 +8,9 @@ variables:
   schema_name:
     description: Schema to use for this solution accelerator  
     default: segmentation
+  warehouse_id:
+    description: ID for the SQL Warehouse connected to the dashboard
+    default: 12345678 # Change here or in variable overrides
 
 targets:
   dev:
@@ -53,7 +56,7 @@ resources:
             notebook_path: ./notebooks/02b_Segmentation_MLflow.py
             base_parameters:
               catalog_name: ${var.catalog_name}
-              schema_name: ${var.schema_name}              
+              schema_name: ${var.schema_name}
 
     customer_segmentation_demo_install:
       name: "Customer Segmentation Complete - ${bundle.target}"
@@ -101,4 +104,4 @@ resources:
       customer_segmentation_dashboard:
         display_name: 'Customer Segmentation Dashboard'
         file_path: 'src/customer_segmentation.lvdash.json'
-        warehouse_id: #TODO
+        warehouse_id: ${var.warehouse_id}
