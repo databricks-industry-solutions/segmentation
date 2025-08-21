@@ -8,8 +8,8 @@
         "    *\n",
         "FROM customer_segments;"
       ],
-      "catalog": "users",
-      "schema": "landan_george"
+      "catalog": "dev_customer_segmentation",
+      "schema": "segmentation"
     },
     {
       "name": "fe1d0538",
@@ -18,34 +18,23 @@
         "SELECT\n",
         "    rfm_segment,\n",
         "    count(*) as cluster_count\n",
-        "FROM users.landan_george.customer_segments\n",
+        "FROM customer_segments\n",
         "GROUP BY rfm_segment\n",
         "UNION\n",
-        "SELECT 'Total', count(*) FROM users.landan_george.customer_segments\n",
+        "SELECT 'Total', count(*) FROM customer_segments\n",
         "ORDER BY cluster_count DESC"
-      ]
-    },
-    {
-      "name": "210fbd58",
-      "displayName": "avg_rfm",
-      "queryLines": [
-        "SELECT\n",
-        "    rfm.rfm_cluster,\n",
-        "    ROUND(AVG(rfm.Frequency), 2) AS average_frequency,\n",
-        "    ROUND(AVG(rfm.Recency), 2) AS average_recency,\n",
-        "    ROUND(AVG(rfm.Monetary), 2) AS average_monetary\n",
-        "FROM users.landan_george.customer_engagement_gold c\n",
-        "JOIN users.landan_george.rfm_clustering rfm\n",
-        "ON c.CustomerID = rfm.CustomerID\n",
-        "GROUP BY rfm.rfm_cluster;"
-      ]
+      ],
+      "catalog": "dev_customer_segmentation",
+      "schema": "segmentation"
     },
     {
       "name": "db74f545",
       "displayName": "customer_summary",
       "queryLines": [
-        "SELECT *, 'US' as country FROM users.landan_george.customer_summary"
-      ]
+        "SELECT *, 'US' as country FROM customer_summary"
+      ],
+      "catalog": "dev_customer_segmentation",
+      "schema": "segmentation"
     }
   ],
   "pages": [
