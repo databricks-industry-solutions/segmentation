@@ -38,7 +38,6 @@ schema_name = dbutils.widgets.get("schema_name") if "schema_name" in dbutils.wid
 
 # Configuration - Start small for testing
 NUM_CUSTOMERS = 1000
-NUM_TRANSACTIONS = 5000
 
 # Set random seed for reproducible results
 fake = Faker()
@@ -46,7 +45,7 @@ random.seed(42)
 np.random.seed(42)
 
 print(f"Using catalog: {catalog_name}, schema: {schema_name}")
-print(f"Generating data for {NUM_CUSTOMERS:,} customers and ~{NUM_TRANSACTIONS:,} transactions")
+print(f"Generating data for {NUM_CUSTOMERS:,} customers")
 
 # Setup catalog and schema
 spark.sql(f"CREATE CATALOG IF NOT EXISTS {catalog_name}")
