@@ -81,7 +81,7 @@ variables:
 or 
 2. Create a variable-overrides.json file under .databricks > bundle > {your target}
 ```json
-# variable-overrides.json variables
+// variable-overrides.json variables
 {
   "catalog_name": "your_catalog_name",
   "schema_name": "your_schema_name",
