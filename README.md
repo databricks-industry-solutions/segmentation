@@ -10,14 +10,12 @@
 
 Customer segmentation divides your customer base into distinct groups based on shared characteristics and behaviors. This solution creates **6 distinct customer segments**:
 
-1. **High-Value Loyalists** - Premium customers generating highest revenue
-2. **Frequent Shoppers** - Regular customers with consistent purchase patterns
-3. **Discount Hunters** - Price-sensitive customers responding to promotions
-4. **Occasional Buyers** - Sporadic purchasers needing engagement
-5. **New/Inactive Customers** - Recent sign-ups or dormant accounts
-6. **Category Specialists** - Customers focused on specific product categories
-
-Each segment receives tailored strategies with **150-200% expected ROI** for high-value segments.
+1. **Champions** - Premium customers generating highest revenue with frequent purchasing patterns
+2. **Loyal** - High value customers with consistent purchase patterns and high revenue
+3. **Regular** - Regular customers, with normal purchasing patterns and revenue
+4. **New Customers** - New customers, only having made one purchase
+5. **At Risk** - Customers who are at risk of churning, no recent activity
+6. **Churned** - Customers who have already churned, need to win back
 
 ## 📦 Installation
 
@@ -38,7 +36,7 @@ databricks bundle run customer_segmentation_demo_install
 ### Prerequisites
 - Databricks workspace with Unity Catalog enabled
 - Databricks CLI installed and configured
-- Cluster creation permissions
+- Ability to use Serverless compute (or Cluster creation permissions)
 
 ## 🏗️ Project Structure
 
@@ -47,7 +45,8 @@ customer-segmentation/
 ├── databricks.yml                 # Databricks Asset Bundle configuration
 ├── notebooks/
 │   ├── 01_Data_Setup.py          # Synthetic data generation
-│   ├── 02_Segmentation_Lakeflow.py    # Lakeflow Declarative Pipelines for segmentation
+│   ├── 02a_Segmentation_Lakeflow.py    # Lakeflow Declarative Pipelines for segmentation
+│   ├── 02b_Segmentation_MLflow.py    # Unsupervised clustering with MLflow for segmentation (builds off of 02a_Segmentation_Lakeflow)
 │   └── 03_Business_Insights.py   # Business visualizations
 └── .github/workflows/             # CI/CD automation
 ```
@@ -61,25 +60,33 @@ The solution implements a **3-stage customer segmentation pipeline**:
 - Creates **transaction history** with seasonal patterns and behavioral variety
 - Stores data in **Unity Catalog managed tables**
 
-### Stage 2: Segmentation Analysis (Lakeflow Declarative Pipelines)
+### Stage 2: Segmentation Analysis (Lakeflow Declarative Pipelines or Unsupervised Clustering)
 - **RFM Analysis**: Calculates Recency, Frequency, and Monetary scores
 - **Behavioral Clustering**: Groups customers by purchase patterns
 - **Segment Profiles**: Creates business-ready segment characteristics
 
 ### Stage 3: Business Insights
-- **Interactive Visualizations**: 5 essential charts using Plotly
-- **Actionable Recommendations**: ROI-focused strategies per segment
-- **Executive Summary**: Business-ready insights and next steps
+- **AI/BI Dashboard**: A dashboard for viewing RFM scores, trends, and customer demographics
 
 ## ⚙️ Configuration
-
-Create a `.env` file based on `.env.example`:
-
+Either:
+1. Create a `.env` file based on `.env.example`:
 ```yaml
 # databricks.yml variables
 variables:
   catalog_name: your_catalog_name
   schema_name: your_schema_name
+  warehouse_id: your_warehouse_id
+```
+or 
+2. Create a variable-overrides.json file under .databricks > bundle > {your target}
+```json
+# variable-overrides.json variables
+{
+  "catalog_name": "your_catalog_name",
+  "schema_name": "your_schema_name",
+  "warehouse_id": "your_warehouse_id"
+}
 ```
 
 ## 📊 Expected Business Impact
@@ -105,7 +112,7 @@ The solution includes 5 essential visualizations:
 - **Lakeflow Declarative Pipelines**: Declarative data pipelines
 - **Serverless Compute**: Cost-effective processing
 - **Plotly Express**: Accessible, interactive visualizations
-- **Synthetic Data**: No external dependencies
+- **Synthetic Data**: Faker
 
 ## 🤝 Contributing
 
