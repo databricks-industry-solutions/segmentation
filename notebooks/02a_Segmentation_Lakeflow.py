@@ -8,7 +8,7 @@
 # MAGIC 1. Clean and prepare customer data
 # MAGIC 2. Calculate RFM metrics
 # MAGIC 3. Create customer segments using clustering logic
-# MAGIC 4. Generate segment profil =es
+# MAGIC 4. Generate segment profiles
 
 # COMMAND ----------
 
