@@ -43,6 +43,8 @@ databricks bundle run customer_segmentation_demo_install
 ```
 customer-segmentation/
 ├── databricks.yml                 # Databricks Asset Bundle configuration
+├── src/
+│   ├── customer_segmentation.lvdash.json          The AI/BI dashboard. Make sure to change the catalog and schema names in this file to your catalog and schema
 ├── notebooks/
 │   ├── 01_Data_Setup.py          # Synthetic data generation
 │   ├── 02a_Segmentation_Lakeflow.py    # Lakeflow Declarative Pipelines for segmentation

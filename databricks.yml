@@ -10,7 +10,7 @@ variables:
     default: segmentation
   warehouse_id:
     description: ID for the SQL Warehouse connected to the dashboard
-    default: 12345678 # Change here or in variable overrides
+    default: 4b9b953939869799 # Change here or in variable overrides
 
 targets:
   dev:
