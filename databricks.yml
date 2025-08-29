@@ -8,6 +8,9 @@ variables:
   schema_name:
     description: Schema to use for this solution accelerator  
     default: segmentation
+  warehouse_id:
+    description: ID for the SQL Warehouse connected to the dashboard
+    default: 4b9b953939869799 # Change here or in variable overrides
 
 targets:
   dev:
@@ -33,7 +36,7 @@ resources:
             notebook_path: ./notebooks/01_Data_Setup.py
             base_parameters:
               catalog_name: ${var.catalog_name}
-              schema_name: ${var.schema_name}
+              schema_name: ${workspace.current_user.short_name}_${var.schema_name}
 
     insights_job:
       name: "Business Insights - ${bundle.target}"
@@ -43,7 +46,17 @@ resources:
             notebook_path: ./notebooks/03_Business_Insights.py
             base_parameters:
               catalog_name: ${var.catalog_name}
-              schema_name: ${var.schema_name}
+              schema_name: ${workspace.current_user.short_name}_${var.schema_name}
+
+    segmentation_mlflow_job:
+      name: "Unsupervised Customer Segmentation - ${bundle.target}"
+      tasks:
+        - task_key: unsupervised_customer_segmentation
+          notebook_task:
+            notebook_path: ./notebooks/02b_Segmentation_MLflow.py
+            base_parameters:
+              catalog_name: ${var.catalog_name}
+              schema_name: ${workspace.current_user.short_name}_${var.schema_name}
 
     customer_segmentation_demo_install:
       name: "Customer Segmentation Complete - ${bundle.target}"
@@ -58,6 +71,12 @@ resources:
           pipeline_task:
             pipeline_id: ${resources.pipelines.segmentation_pipeline.id}
             full_refresh: true
+          
+        - task_key: unsupervised_segmentation
+          depends_on:
+            - task_key: run_segmentation_pipeline
+          run_job_task:
+            job_id: ${resources.jobs.segmentation_mlflow_job.id}          
         
         - task_key: generate_insights
           depends_on:
@@ -72,11 +91,17 @@ resources:
       continuous: false
       serverless: true
       catalog: ${var.catalog_name}
-      target: ${var.schema_name}
+      target: ${workspace.current_user.short_name}_${var.schema_name}
       libraries:
         - notebook:
-            path: ./notebooks/02_Segmentation_Lakeflow.py
+            path: ./notebooks/02a_Segmentation_Lakeflow.py
       configuration:
         "pipelines.trigger.interval": "manual"
         "catalog": "${var.catalog_name}"
-        "schema": "${var.schema_name}"
+        "schema": "${workspace.current_user.short_name}_${var.schema_name}"
+
+  dashboards:
+      customer_segmentation_dashboard:
+        display_name: 'Customer Segmentation Dashboard'
+        file_path: 'src/customer_segmentation.lvdash.json'
+        warehouse_id: ${var.warehouse_id}
