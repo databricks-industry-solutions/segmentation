@@ -36,7 +36,7 @@ resources:
             notebook_path: ./notebooks/01_Data_Setup.py
             base_parameters:
               catalog_name: ${var.catalog_name}
-              schema_name: ${var.schema_name}
+              schema_name: ${workspace.current_user.short_name}_${var.schema_name}
 
     insights_job:
       name: "Business Insights - ${bundle.target}"
@@ -46,7 +46,7 @@ resources:
             notebook_path: ./notebooks/03_Business_Insights.py
             base_parameters:
               catalog_name: ${var.catalog_name}
-              schema_name: ${var.schema_name}
+              schema_name: ${workspace.current_user.short_name}_${var.schema_name}
 
     segmentation_mlflow_job:
       name: "Unsupervised Customer Segmentation - ${bundle.target}"
@@ -56,7 +56,7 @@ resources:
             notebook_path: ./notebooks/02b_Segmentation_MLflow.py
             base_parameters:
               catalog_name: ${var.catalog_name}
-              schema_name: ${var.schema_name}
+              schema_name: ${workspace.current_user.short_name}_${var.schema_name}
 
     customer_segmentation_demo_install:
       name: "Customer Segmentation Complete - ${bundle.target}"
@@ -91,14 +91,14 @@ resources:
       continuous: false
       serverless: true
       catalog: ${var.catalog_name}
-      target: ${var.schema_name}
+      target: ${workspace.current_user.short_name}_${var.schema_name}
       libraries:
         - notebook:
             path: ./notebooks/02a_Segmentation_Lakeflow.py
       configuration:
         "pipelines.trigger.interval": "manual"
         "catalog": "${var.catalog_name}"
-        "schema": "${var.schema_name}"
+        "schema": "${workspace.current_user.short_name}_${var.schema_name}"
 
   dashboards:
       customer_segmentation_dashboard:
